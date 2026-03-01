@@ -1,3 +1,9 @@
+[English](README.en.md) | 中文
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/envestcc/autodev)](https://github.com/envestcc/autodev/stargazers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/envestcc/autodev)](https://github.com/envestcc/autodev/commits/main)
+
 # autodev
 
 AI 驱动的产品自动迭代改进引擎。
@@ -117,6 +123,10 @@ personas:
 - **"调整方向：更关注 XXX"** → 动态修改关注重点
 - **"加一个角色：XXX"** → 添加新 persona
 - **"看看目前的状态"** → 输出进度统计
+
+## 贡献
+
+请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## License
 

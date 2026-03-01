@@ -1,2 +1,16 @@
+# autodev runtime
 .autodev/logs/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if used in target projects)
+node_modules/

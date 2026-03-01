@@ -1,9 +1,11 @@
 ---
 name: autodev
+version: 1.0.0
 description: |
   AI 驱动的产品自动迭代改进引擎。自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环。
   Use when user mentions 'autodev', 'auto iterate', '自动迭代', '产品迭代', or '迭代改进'.
-  Triggers on: 'run autodev', 'iterate on this project', '帮我迭代这个项目', '自动改进产品'.
+  Triggers on: 'run autodev', 'iterate on this project', '帮我迭代这个项目', '自动改进产品',
+    'auto iterate this project', 'improve this project automatically'.
   Compatible with: Copilot CLI, Claude Code (place in ~/.claude/skills/autodev/SKILL.md).
 ---
 
