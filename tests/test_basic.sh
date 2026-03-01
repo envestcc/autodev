@@ -62,6 +62,11 @@ echo ""
 echo "🏃 run --dry-run 子命令:"
 # 需要创建 docs 目录和 git 仓库
 cd "${TEST_DIR}/project" && git init -q
+# 修改默认配置值以通过验证
+sed -i.bak 's/我的产品/TestProduct/g' "${TEST_DIR}/project/.autodev/config.sh"
+sed -i.bak 's/一个 XXX 应用，帮助用户 XXX/A test product/g' "${TEST_DIR}/project/.autodev/config.sh"
+sed -i.bak 's/一名 25 岁的白领用户.*非专业人士/A test user/g' "${TEST_DIR}/project/.autodev/config.sh"
+rm -f "${TEST_DIR}/project/.autodev/config.sh.bak"
 assert "dry-run 正常执行" bash "$AUTODEV" run "${TEST_DIR}/project" -n 1 --dry-run
 
 # ── status ──
