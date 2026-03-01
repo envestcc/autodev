@@ -145,6 +145,39 @@ your-project/
 └── src/                                ← AI 直接修改的代码
 ```
 
+## 方式二：Copilot Skill（推荐）
+
+除了 shell 脚本，autodev 还提供 Copilot Skill 方式，**无需脚本、无需配置文件模板**，直接在 Copilot 会话中使用。
+
+### 安装
+
+```bash
+# 复制 skill 到用户级目录（所有项目可用）
+mkdir -p ~/.copilot/skills/autodev
+cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+```
+
+### 使用
+
+在任何项目中启动 Copilot，直接说：
+
+```
+帮我自动迭代这个项目 5 轮
+```
+
+首次使用会交互式询问产品信息，之后自动循环执行。
+
+### Skill vs Shell 脚本
+
+| 特性 | Shell 脚本 | Copilot Skill |
+|------|-----------|---------------|
+| 上下文 | 每步冷启动 | 单一会话，持续记忆 |
+| Prompt | 静态模板 | 动态推理，逐轮调整 |
+| 多角色 | 需预定义 | 可中途添加角色 |
+| 错误修复 | 下一轮才发现 | 当场验证并修复 |
+| 交互控制 | 无（全自动） | 可随时暂停、调整方向 |
+| 安装 | 复制脚本 + init | 复制一个 .md 文件 |
+
 ## License
 
 MIT
