@@ -169,6 +169,16 @@ iteration:
 
 然后自动进入下一轮，直到达到目标轮数。
 
+### 全部轮次完成后
+
+所有轮次结束后，通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
+
+1. **保留并提交** — 将 docs_dir 下的反馈和计划文件保留在仓库中，作为迭代历史记录
+2. **保留但不提交** — 将 `{docs_dir}/` 加入 `.gitignore`，文件留在本地但不进入仓库
+3. **删除** — 删除所有 feedback_round_*.md 和 improvement_plan_round_*.md 文件，只保留代码改动
+
+按用户选择执行对应操作。如果用户选择删除或 gitignore，做一次额外的 git commit 记录清理动作。
+
 ## 多 Persona 支持
 
 用户可以在 config.yaml 中定义多个 persona，实现多角色轮换：
