@@ -2,7 +2,7 @@
 
 AI 驱动的产品自动迭代改进引擎。
 
-通过 [Copilot CLI](https://github.com/github/copilot-cli) 驱动「模拟用户试用 → 设计改进计划 → 实施代码改进」的循环，实现产品无人值守的自动迭代升级。
+通过 [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code 驱动「模拟用户试用 → 设计改进计划 → 实施代码改进」的循环，实现产品无人值守的自动迭代升级。
 
 ## 工作原理
 
@@ -114,7 +114,7 @@ Shell 脚本方式适合需要 CI 集成或完全无人值守的场景。
 ### 安装
 
 ```bash
-git clone https://github.com/<your-user>/autodev.git
+git clone https://github.com/anthropic-ai/autodev.git  # 替换为实际仓库地址
 cd autodev
 ln -s "$(pwd)/autodev.sh" /usr/local/bin/autodev
 ```

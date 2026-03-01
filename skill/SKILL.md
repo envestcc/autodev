@@ -49,10 +49,10 @@ personas:
 
 source_dirs: ["用户回答"]
 docs_dir: "docs/autodev"
-code_conventions: "用户回答"
+# code_conventions: "自动检测项目技术栈，如需覆盖请取消注释并填写"
 
 iteration:
-  max_rounds: 5
+  max_rounds: 5          # 运行时通过 "迭代 N 轮" 覆盖
   max_items_per_round: 6
   commit_prefix: "feat(autodev):"
 
@@ -62,6 +62,13 @@ iteration:
 ```
 
 然后告诉用户："配置完成！可以说 '开始迭代' 或 '迭代 3 轮' 来启动。"
+
+### 已有 config.sh 的项目迁移
+
+如果检测到项目已有 `.autodev/config.sh`（Shell 脚本方式的配置），通过 ask_user 询问用户：
+- "检测到已有 Shell 方式配置 (.autodev/config.sh)，是否基于现有配置生成 config.yaml？"
+- 如果用户选择是：读取 config.sh 中的变量值，自动映射到 config.yaml 格式
+- 如果用户选择否：按正常初始化流程提问
 
 ## 迭代执行流程
 
@@ -95,7 +102,7 @@ iteration:
 - **第 7 轮**：极端数据量与压力测试视角，关注边界值和大数据场景
 - **第 8 轮**：安全性审计视角，检查输入校验、权限控制、数据泄露风险
 - **第 9 轮**：开发者体验视角，检查 API 设计、文档准确性、代码可维护性
-- **第 10 轮**：回归测试，全面验证所有历史改进是否仍然有效
+- **第 10 轮**：全量回归测试 + 迭代总结报告，评估整体改进效果和剩余技术债
 - **第 N 轮（N>10）**：从以上视角中选择与最近改动最相关的角度深入测试
 
 将反馈报告保存到：`{docs_dir}/feedback_round_{N}.md`
