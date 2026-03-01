@@ -26,19 +26,19 @@ AI 驱动的产品自动迭代改进引擎。
 2. **阅读反馈报告**，按优先级设计可执行的改进计划
 3. **按计划实施代码修改**，自动 git commit
 
-## 快速开始（Copilot Skill 方式，推荐）
-
-Skill 方式无需脚本、无需配置文件模板，直接在 Copilot 会话中交互式使用。
+## 快速开始
 
 ### 安装
 
 ```bash
-# 复制 skill 到用户级目录（所有项目可用）
+# Copilot CLI 用户：复制 skill 到用户级目录
 mkdir -p ~/.copilot/skills/autodev
 cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
-```
 
-> **Claude Code 用户**：也可复制到 `~/.claude/skills/autodev/SKILL.md`，格式通用。
+# Claude Code 用户：复制到 Claude 目录
+mkdir -p ~/.claude/skills/autodev
+cp skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
+```
 
 ### 前置条件
 
@@ -55,7 +55,7 @@ cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
 
 首次使用会交互式询问产品信息（约 5 个问题），自动生成 `.autodev/config.yaml`，然后开始循环迭代。
 
-### Skill 方式配置（config.yaml）
+### 配置（config.yaml）
 
 首次运行时自动生成，也可手动编辑 `.autodev/config.yaml`：
 
@@ -81,7 +81,7 @@ iteration:
 
 > 更多示例见 [examples/](examples/) 目录。
 
-### Skill 方式输出结构
+### 输出结构
 
 ```
 your-project/
@@ -95,87 +95,28 @@ your-project/
 └── src/                                ← AI 直接修改的代码
 ```
 
-### Skill vs Shell 脚本
+## 多 Persona 支持
 
-| 特性 | Copilot Skill（推荐） | Shell 脚本 |
-|------|----------------------|-----------|
-| 上下文 | 单一会话，持续记忆 | 每步冷启动 |
-| Prompt | 动态推理，逐轮调整 | 静态模板 |
-| 多角色 | 可中途添加角色 | 需预定义 |
-| 错误修复 | 当场验证并修复 | 下一轮才发现 |
-| 交互控制 | 可随时暂停、调整方向 | 无（全自动） |
-| 安装 | 复制一个 .md 文件 | 复制脚本 + init |
-| 兼容性 | Copilot CLI / Claude Code | 仅 Copilot CLI |
+在 config.yaml 中定义多个 persona，AI 会按轮次自动轮换角色视角：
 
-## 方式二：Shell 脚本（高级用法）
-
-Shell 脚本方式适合需要 CI 集成或完全无人值守的场景。
-
-### 安装
-
-```bash
-git clone https://github.com/anthropic-ai/autodev.git  # 替换为实际仓库地址
-cd autodev
-ln -s "$(pwd)/autodev.sh" /usr/local/bin/autodev
+```yaml
+personas:
+  - name: "新手用户"
+    description: "第一次使用，不熟悉术语"
+    focus: ["上手引导", "界面直觉性"]
+  
+  - name: "高级用户"
+    description: "追求效率和高级功能"
+    focus: ["快捷操作", "自定义配置"]
 ```
 
-### 使用
+## 中途控制
 
-```bash
-# 1. 初始化配置
-autodev init ~/dev/my-app
-
-# 2. 编辑配置文件
-vim ~/dev/my-app/.autodev/config.sh
-
-# 3. 运行自动迭代
-autodev run ~/dev/my-app -n 5
-```
-
-### 命令参考
-
-| 命令 | 说明 |
-|------|------|
-| `autodev init <路径>` | 初始化配置目录 |
-| `autodev run <路径> [-n N] [-m model] [-s N] [--dry-run]` | 运行迭代 |
-| `autodev status <路径>` | 查看迭代状态 |
-
-### Shell 方式配置（config.sh）
-
-```bash
-PRODUCT_NAME="数学错题本"                    # 产品名
-PRODUCT_DESC="帮助高中生整理和复习数学错题"     # 产品简介
-USER_PERSONA="高三理科生，数学约110分"         # 用户画像
-SOURCE_DIRS="miniprogram"                   # 源码目录
-DOCS_DIR_REL="docs"                        # 文档目录
-CODE_CONVENTIONS="微信小程序 WXML/WXSS/JS"   # 代码规范
-MAX_ITEMS_PER_ROUND=6                      # 每轮改进项上限
-COMMIT_PREFIX="feat: 迭代改进"               # commit 前缀
-FOCUS_AREAS="用户体验、复习功能"               # 关注领域
-FEEDBACK_FORMAT="总体印象、功能点评、Bug、建议" # 报告格式
-```
-
-### 自定义 Prompt 模板
-
-编辑 `.autodev/prompts/` 下的模板文件，支持 `{{PRODUCT_NAME}}`、`{{ROUND}}` 等占位符。
-
-### Shell 方式输出结构
-
-```
-your-project/
-├── .autodev/
-│   ├── config.sh
-│   ├── prompts/
-│   │   ├── feedback.md
-│   │   ├── plan.md
-│   │   └── implement.md
-│   └── logs/
-├── docs/
-│   ├── feedback_round_1.md
-│   ├── improvement_plan_round_1.md
-│   └── ...
-└── src/
-```
+迭代过程中可以随时说：
+- **"暂停"** → 完成当前 step 后暂停
+- **"调整方向：更关注 XXX"** → 动态修改关注重点
+- **"加一个角色：XXX"** → 添加新 persona
+- **"看看目前的状态"** → 输出进度统计
 
 ## License
 
