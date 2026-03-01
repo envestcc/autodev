@@ -25,6 +25,7 @@ TOTAL_ROUNDS=5
 START_ROUND=1
 MODEL="claude-sonnet-4"
 DRY_RUN=false
+RESUME_FROM=""
 
 # ── 辅助函数 ──────────────────────────────────────────
 timestamp() { date '+%Y-%m-%d %H:%M:%S'; }
@@ -33,6 +34,7 @@ info()  { echo -e "${BLUE}[INFO]${RESET}  $1"; }
 ok()    { echo -e "${GREEN}[OK]${RESET}    $1"; }
 warn()  { echo -e "${YELLOW}[WARN]${RESET}  $1"; }
 err()   { echo -e "${RED}[ERROR]${RESET} $1" >&2; }
+die()   { err "$1"; exit 1; }
 
 banner() {
   echo -e "${CYAN}${BOLD}"
@@ -56,6 +58,111 @@ resolve_path() {
   cd "$1" 2>/dev/null && pwd || { err "目录不存在: $1"; exit 1; }
 }
 
+check_prerequisites() {
+  local project_dir="$1"
+  
+  # 检查copilot命令是否可用
+  command -v copilot >/dev/null || die "Copilot CLI not found. Please install: https://github.com/github/copilot-cli"
+  
+  # 检查当前目录是否为git仓库
+  cd "$project_dir" 2>/dev/null || die "目录不存在: $project_dir"
+  git rev-parse --git-dir >/dev/null 2>&1 || die "Not a git repository. Please run 'git init' first"
+  
+  # 检查目标目录写入权限
+  [[ -w "$project_dir" ]] || die "No write permission to project directory"
+  
+  info "前置条件检查通过 ✓"
+}
+
+validate_config() {
+  # 检查必填项
+  [[ "$PRODUCT_NAME" != "我的产品" ]] || die "请编辑config.sh设置 PRODUCT_NAME"
+  [[ "$PRODUCT_DESC" != "产品简介" ]] || die "请编辑config.sh设置 PRODUCT_DESC"  
+  [[ "$USER_PERSONA" != "用户画像" ]] || die "请编辑config.sh设置 USER_PERSONA"
+  
+  # 检查路径有效性
+  [[ -d "$PROJECT_DIR/$SOURCE_DIRS" ]] || warn "源码目录不存在: $SOURCE_DIRS"
+  
+  # 检查数值范围
+  [[ "$MAX_ITEMS_PER_ROUND" -gt 0 && "$MAX_ITEMS_PER_ROUND" -le 20 ]] || die "MAX_ITEMS_PER_ROUND 应在1-20之间"
+  
+  info "配置验证通过 ✓"
+}
+
+save_step_status() {
+  local round="$1" step="$2" status="$3"
+  local status_file="${LOG_DIR}/round_${round}_status.json"
+  echo "{\"round\":$round,\"step\":$step,\"status\":\"$status\",\"timestamp\":\"$(timestamp)\"}" > "$status_file"
+}
+
+get_last_completed_step() {
+  local round="$1"
+  local status_file="${LOG_DIR}/round_${round}_status.json"
+  if [[ -f "$status_file" ]]; then
+    local status
+    status=$(grep -o '"status":"[^"]*"' "$status_file" | cut -d'"' -f4)
+    local step
+    step=$(grep -o '"step":[0-9]*' "$status_file" | cut -d':' -f2)
+    if [[ "$status" == "completed" ]]; then
+      echo "$step"
+    else
+      echo "0"
+    fi
+  else
+    echo "0"
+  fi
+}
+
+get_round_status() {
+  local round="$1"
+  local logs_dir="$2"
+  local status_file="${logs_dir}/round_${round}_status.json"
+  
+  if [[ -f "$status_file" ]]; then
+    local status
+    status=$(grep -o '"status":"[^"]*"' "$status_file" | cut -d'"' -f4)
+    case "$status" in
+      completed) echo "success" ;;
+      failed) echo "failed" ;;
+      running) echo "running" ;;
+      *) echo "unknown" ;;
+    esac
+  else
+    echo "not_started"
+  fi
+}
+
+get_round_timestamp() {
+  local round="$1"
+  local logs_dir="$2"
+  local status_file="${logs_dir}/round_${round}_status.json"
+  
+  if [[ -f "$status_file" ]]; then
+    grep -o '"timestamp":"[^"]*"' "$status_file" | cut -d'"' -f4
+  else
+    echo "未运行"
+  fi
+}
+
+get_failure_reason() {
+  local round="$1"
+  local logs_dir="$2"
+  local status_file="${logs_dir}/round_${round}_status.json"
+  
+  if [[ -f "$status_file" ]]; then
+    local step
+    step=$(grep -o '"step":[0-9]*' "$status_file" | cut -d':' -f2)
+    case "$step" in
+      1) echo "模拟用户试用失败" ;;
+      2) echo "设计改进计划失败" ;;
+      3) echo "实施代码改进失败" ;;
+      *) echo "未知错误" ;;
+    esac
+  else
+    echo "状态文件不存在"
+  fi
+}
+
 # ── 用法 ──────────────────────────────────────────────
 usage() {
   cat <<USAGE
@@ -72,6 +179,7 @@ run 选项:
   -n, --rounds <N>      迭代轮数 (默认: 5)
   -m, --model <model>   AI 模型 (默认: claude-sonnet-4)
   -s, --start <N>       从第 N 轮开始 (默认: 1)
+  --resume-from <step>  从指定步骤恢复 (round<N>/step<N>)
   --dry-run             只打印 prompt，不实际执行
 
 示例:
@@ -79,6 +187,8 @@ run 选项:
   ${PROG_NAME} run ~/dev/my-app -n 3
   ${PROG_NAME} run ~/dev/my-app -n 5 -m claude-opus-4.6
   ${PROG_NAME} run ~/dev/my-app --start 3
+  ${PROG_NAME} run ~/dev/my-app --resume-from step2
+  ${PROG_NAME} run ~/dev/my-app --resume-from round2
   ${PROG_NAME} status ~/dev/my-app
 USAGE
 }
@@ -89,6 +199,8 @@ USAGE
 run_copilot() {
   local prompt="$1"
   local log_file="$2"
+  local max_retries=3
+  local retry=0
 
   if $DRY_RUN; then
     echo -e "${CYAN}──── PROMPT ────${RESET}"
@@ -98,13 +210,32 @@ run_copilot() {
     return 0
   fi
 
-  cd "$PROJECT_DIR"
-  copilot "${COPILOT_FLAGS[@]}" -p "$prompt" 2>&1 | tee "$log_file"
-  local exit_code=${PIPESTATUS[0]}
-  if [ $exit_code -ne 0 ]; then
-    err "copilot 退出码: $exit_code (详情见 $log_file)"
-    return $exit_code
-  fi
+  while [ $retry -lt $max_retries ]; do
+    cd "$PROJECT_DIR"
+    copilot "${COPILOT_FLAGS[@]}" -p "$prompt" 2>&1 | tee "$log_file"
+    local exit_code=${PIPESTATUS[0]}
+    
+    if [ $exit_code -eq 0 ]; then
+      return 0
+    fi
+    
+    # 分析错误类型
+    local error_msg
+    error_msg=$(tail -10 "$log_file" | grep -i "network\|timeout\|rate.limit\|connection" || true)
+    
+    if [[ -n "$error_msg" && $retry -lt $((max_retries - 1)) ]]; then
+      local wait_time=$((retry * 30 + 30))
+      warn "网络错误，等待${wait_time}秒后重试 ($((retry+1))/$max_retries)"
+      sleep $wait_time
+      retry=$((retry + 1))
+    else
+      err "copilot 退出码: $exit_code (详情见 $log_file)"
+      return $exit_code
+    fi
+  done
+  
+  err "copilot 重试次数已达上限"
+  return 1
 }
 
 # ══════════════════════════════════════════════════════
@@ -307,6 +438,7 @@ cmd_status() {
   local target="$1"
   local ad_dir="${target}/${CONFIG_DIR_NAME}"
   local docs_dir
+  local logs_dir="${ad_dir}/logs"
 
   if [ ! -f "${ad_dir}/config.sh" ]; then
     err "未找到配置: ${ad_dir}/config.sh"
@@ -319,13 +451,13 @@ cmd_status() {
   docs_dir="${target}/${DOCS_DIR_REL}"
 
   banner
-  echo -e "  ${BOLD}产品:${RESET} ${PRODUCT_NAME}"
+  echo -e "📊 ${BOLD}项目迭代状态${RESET} (${PRODUCT_NAME})"
+  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
   echo -e "  ${BOLD}路径:${RESET} ${target}"
   echo ""
 
   # 统计已完成的轮次
   local max_round=0
-  local has_feedback has_plan
   for f in "${docs_dir}"/feedback_round_*.md; do
     [ -f "$f" ] || continue
     local n
@@ -335,25 +467,46 @@ cmd_status() {
 
   if [ "$max_round" -eq 0 ]; then
     info "尚未运行任何迭代"
+    echo ""
+    echo "💡 ${BOLD}建议:${RESET} ${PROG_NAME} run ${target}"
     return
   fi
 
   echo -e "  ${BOLD}迭代历史:${RESET}"
   for r in $(seq 1 "$max_round"); do
-    has_feedback=""; has_plan=""
-    [ -f "${docs_dir}/feedback_round_${r}.md" ] && has_feedback="✓ 反馈"
-    [ -f "${docs_dir}/improvement_plan_round_${r}.md" ] && has_plan="✓ 计划"
-    printf "    第%d轮:  %-12s  %s\n" "$r" "${has_feedback:-✗ 反馈}" "${has_plan:-✗ 计划}"
+    local status
+    status=$(get_round_status "$r" "$logs_dir")
+    local timestamp
+    timestamp=$(get_round_timestamp "$r" "$logs_dir")
+    
+    case "$status" in
+      success)
+        printf "    轮次 %-2d: ${GREEN}%-8s${RESET} [%s]\n" "$r" "success" "$timestamp"
+        ;;
+      failed)
+        printf "    轮次 %-2d: ${RED}%-8s${RESET} [%s]\n" "$r" "failed" "$timestamp"
+        printf "      ${YELLOW}↳ 错误:${RESET} %s\n" "$(get_failure_reason "$r" "$logs_dir")"
+        ;;
+      running)
+        printf "    轮次 %-2d: ${YELLOW}%-8s${RESET} [%s]\n" "$r" "running" "$timestamp"
+        ;;
+      *)
+        printf "    轮次 %-2d: ${CYAN}%-8s${RESET} [%s]\n" "$r" "unknown" "$timestamp"
+        ;;
+    esac
   done
 
   echo ""
-  info "下次运行建议: ${PROG_NAME} run ${target} --start $((max_round + 1))"
+  echo "💡 ${BOLD}建议:${RESET} ${PROG_NAME} run ${target} --start $((max_round + 1))"
 }
 
 # ══════════════════════════════════════════════════════
 #  子命令: run
 # ══════════════════════════════════════════════════════
 cmd_run() {
+  # 前置条件检查
+  check_prerequisites "$PROJECT_DIR"
+  
   # 加载配置
   local ad_dir="${PROJECT_DIR}/${CONFIG_DIR_NAME}"
   AUTODEV_DIR="$ad_dir"
@@ -367,6 +520,9 @@ cmd_run() {
 
   # shellcheck source=/dev/null
   source "$config_file"
+  
+  # 配置验证
+  validate_config
 
   DOCS_DIR="${PROJECT_DIR}/${DOCS_DIR_REL}"
   LOG_DIR="${ad_dir}/logs"
@@ -386,33 +542,72 @@ cmd_run() {
     CURRENT_FEEDBACK_FILE="${DOCS_DIR}/feedback_round_${CURRENT_ROUND}.md"
     CURRENT_PLAN_FILE="${DOCS_DIR}/improvement_plan_round_${CURRENT_ROUND}.md"
 
-    # ── Step 1: 模拟用户试用 ──
-    log_step "📝 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 1/3: 模拟用户试用"
-    local template prompt
-    template=$(load_prompt_template "feedback")
-    prompt=$(render_prompt "$template")
-    run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step1_feedback.log"
+    # 处理恢复逻辑
+    local start_step=1
+    if [[ -n "$RESUME_FROM" ]]; then
+      if [[ "$RESUME_FROM" =~ ^round([0-9]+)$ ]]; then
+        local resume_round=${BASH_REMATCH[1]}
+        if [[ $CURRENT_ROUND -lt $resume_round ]]; then
+          continue
+        elif [[ $CURRENT_ROUND -eq $resume_round ]]; then
+          start_step=1
+        fi
+      elif [[ "$RESUME_FROM" =~ ^step([0-9]+)$ ]] && [[ $CURRENT_ROUND -eq $START_ROUND ]]; then
+        start_step=${BASH_REMATCH[1]}
+      fi
+    fi
 
-    if [ ! -f "$CURRENT_FEEDBACK_FILE" ] && ! $DRY_RUN; then
-      warn "反馈文档未生成 (${CURRENT_FEEDBACK_FILE})，继续..."
+    # ── Step 1: 模拟用户试用 ──
+    if [[ $start_step -le 1 ]]; then
+      save_step_status "$CURRENT_ROUND" 1 "running"
+      log_step "📝 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 1/3: 模拟用户试用"
+      local template prompt
+      template=$(load_prompt_template "feedback")
+      prompt=$(render_prompt "$template")
+      if run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step1_feedback.log"; then
+        save_step_status "$CURRENT_ROUND" 1 "completed"
+      else
+        save_step_status "$CURRENT_ROUND" 1 "failed"
+        continue
+      fi
+
+      if [ ! -f "$CURRENT_FEEDBACK_FILE" ] && ! $DRY_RUN; then
+        warn "反馈文档未生成 (${CURRENT_FEEDBACK_FILE})，继续..."
+      fi
     fi
 
     # ── Step 2: 设计改进计划 ──
-    log_step "📋 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 2/3: 设计改进计划"
-    template=$(load_prompt_template "plan")
-    prompt=$(render_prompt "$template")
-    run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step2_plan.log"
+    if [[ $start_step -le 2 ]]; then
+      save_step_status "$CURRENT_ROUND" 2 "running"
+      log_step "📋 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 2/3: 设计改进计划"
+      template=$(load_prompt_template "plan")
+      prompt=$(render_prompt "$template")
+      if run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step2_plan.log"; then
+        save_step_status "$CURRENT_ROUND" 2 "completed"
+      else
+        save_step_status "$CURRENT_ROUND" 2 "failed"
+        continue
+      fi
 
-    if [ ! -f "$CURRENT_PLAN_FILE" ] && ! $DRY_RUN; then
-      warn "计划文档未生成 (${CURRENT_PLAN_FILE})，跳过实施..."
-      continue
+      if [ ! -f "$CURRENT_PLAN_FILE" ] && ! $DRY_RUN; then
+        warn "计划文档未生成 (${CURRENT_PLAN_FILE})，跳过实施..."
+        continue
+      fi
     fi
 
     # ── Step 3: 实施改进 ──
-    log_step "🔧 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 3/3: 实施代码改进"
-    template=$(load_prompt_template "implement")
-    prompt=$(render_prompt "$template")
-    run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step3_implement.log"
+    if [[ $start_step -le 3 ]]; then
+      save_step_status "$CURRENT_ROUND" 3 "running"
+      log_step "🔧 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮 — Step 3/3: 实施代码改进"
+      template=$(load_prompt_template "implement")
+      prompt=$(render_prompt "$template")
+      if run_copilot "$prompt" "${LOG_DIR}/round_${CURRENT_ROUND}_step3_implement.log"; then
+        save_step_status "$CURRENT_ROUND" 3 "completed"
+      else
+        save_step_status "$CURRENT_ROUND" 3 "failed"
+        continue
+      fi
+    fi
 
     log_step "✅ 第 ${CURRENT_ROUND}/${TOTAL_ROUNDS} 轮完成"
   done
@@ -459,11 +654,12 @@ esac
 # 解析子命令后续参数
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -n|--rounds)  TOTAL_ROUNDS="$2"; shift 2 ;;
-    -m|--model)   MODEL="$2"; shift 2 ;;
-    -s|--start)   START_ROUND="$2"; shift 2 ;;
-    --dry-run)    DRY_RUN=true; shift ;;
-    -*)           err "未知选项: $1"; usage; exit 1 ;;
+    -n|--rounds)     TOTAL_ROUNDS="$2"; shift 2 ;;
+    -m|--model)      MODEL="$2"; shift 2 ;;
+    -s|--start)      START_ROUND="$2"; shift 2 ;;
+    --resume-from)   RESUME_FROM="$2"; shift 2 ;;
+    --dry-run)       DRY_RUN=true; shift ;;
+    -*)              err "未知选项: $1"; usage; exit 1 ;;
     *)
       if [ -z "$PROJECT_DIR" ]; then
         PROJECT_DIR="$1"; shift
