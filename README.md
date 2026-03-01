@@ -6,9 +6,25 @@
 
 # autodev
 
-AI 驱动的产品自动迭代改进引擎。
+> 💡 **让 AI 替你做产品迭代** — 你睡觉，它改代码。
 
-通过 [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code 驱动「模拟用户试用 → 设计改进计划 → 实施代码改进」的循环，实现产品无人值守的自动迭代升级。
+通过 [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code 驱动，autodev 自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级。
+
+- 🤖 **全自动** — 一句话启动，AI 自动读代码、找问题、写修复、提交 commit
+- 🎭 **多角色** — 配置不同用户画像，每轮从不同视角发现问题
+- 🔄 **持续迭代** — 支持 1~N 轮循环，每轮基于上一轮反馈递进改进
+
+## 30 秒体验
+
+```bash
+# 1. 一键安装（Copilot CLI 用户）
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+
+# 2. 在任意项目中启动 Copilot CLI，说：
+#    "帮我自动迭代这个项目 3 轮"
+
+# 3. 看 AI 自动工作 ☕
+```
 
 ## 工作原理
 
@@ -36,15 +52,24 @@ AI 驱动的产品自动迭代改进引擎。
 
 ### 安装
 
-```bash
-# Copilot CLI 用户：复制 skill 到用户级目录
-mkdir -p ~/.copilot/skills/autodev
-cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+**一键安装（推荐）：**
 
-# Claude Code 用户：复制到 Claude 目录
-mkdir -p ~/.claude/skills/autodev
-cp skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
+```bash
+# Copilot CLI 用户
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+
+# Claude Code 用户
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
 ```
+
+**或从源码安装：**
+
+```bash
+git clone https://github.com/envestcc/autodev.git
+cp autodev/skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+```
+
+验证安装：`cat ~/.copilot/skills/autodev/SKILL.md | head -3` 应输出 `---`。
 
 ### 前置条件
 
@@ -127,6 +152,29 @@ personas:
 ## 贡献
 
 请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 实际运行效果
+
+```
+$ copilot-cli
+> 帮我自动迭代这个项目 3 轮
+
+🔄 第 1 轮开始 | 角色: 高三理科生
+   📋 Step 1: 模拟用户试用... 发现 5 个问题
+   📐 Step 2: 设计改进计划... 4 项 P1 + 1 项 P2
+   🔧 Step 3: 实施改进... 修改 3 个文件
+✅ 第 1 轮完成 | 提交: a1b2c3d
+
+🔄 第 2 轮开始 | 角色: 高三理科生
+   📋 Step 1: 验证第 1 轮修复 + 深入测试... 发现 3 个新问题
+   📐 Step 2: 设计改进计划... 3 项
+   🔧 Step 3: 实施改进... 修改 2 个文件
+✅ 第 2 轮完成 | 提交: d4e5f6g
+
+🔄 第 3 轮开始 | 角色: 高三理科生
+   ...
+✅ 全部 3 轮完成！共实施 11 项改进。
+```
 
 ## License
 

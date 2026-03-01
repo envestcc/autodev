@@ -45,6 +45,7 @@ autodev/
 ├── README.md            ← 中文文档
 ├── README.en.md         ← English documentation
 ├── CONTRIBUTING.md      ← 贡献指南（本文件）
+├── .github/             ← Issue/PR 模板
 ├── examples/            ← 配置示例
 └── .autodev/            ← 自迭代配置
 ```

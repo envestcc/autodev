@@ -19,6 +19,7 @@ description: |
 - "autodev"、"自动迭代"、"产品迭代"、"迭代改进"
 - "帮我迭代这个项目 N 轮"
 - "run autodev"、"iterate on this project"
+- "auto iterate this project"、"improve this project automatically"
 
 ## 第一次使用：初始化
 

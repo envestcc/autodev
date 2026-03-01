@@ -6,9 +6,25 @@
 
 # autodev
 
-AI-powered product auto-iteration engine.
+> 💡 **Let AI iterate your product** — you sleep, it ships code.
 
-Driven by [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code, it automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
+Driven by [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code, autodev automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
+
+- 🤖 **Fully Automated** — One command to start, AI reads code, finds issues, writes fixes, commits
+- 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective
+- 🔄 **Continuous Iteration** — Supports 1~N rounds, each building on the previous round's feedback
+
+## 30-Second Quick Start
+
+```bash
+# 1. One-line install (Copilot CLI users)
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+
+# 2. Launch Copilot CLI in any project and say:
+#    "auto iterate this project for 3 rounds"
+
+# 3. Watch AI work ☕
+```
 
 ## How It Works
 
@@ -36,15 +52,24 @@ In each round, the AI will:
 
 ### Installation
 
-```bash
-# Copilot CLI users: copy skill to user-level directory
-mkdir -p ~/.copilot/skills/autodev
-cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+**One-line install (recommended):**
 
-# Claude Code users: copy to Claude directory
-mkdir -p ~/.claude/skills/autodev
-cp skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
+```bash
+# Copilot CLI users
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+
+# Claude Code users
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
 ```
+
+**Or install from source:**
+
+```bash
+git clone https://github.com/envestcc/autodev.git
+cp autodev/skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+```
+
+Verify: `cat ~/.copilot/skills/autodev/SKILL.md | head -3` should output `---`.
 
 ### Prerequisites
 
@@ -127,6 +152,29 @@ During iteration, you can say at any time:
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Demo Output
+
+```
+$ copilot-cli
+> auto iterate this project for 3 rounds
+
+🔄 Round 1 | Persona: Senior Student
+   📋 Step 1: Simulating user experience... found 5 issues
+   📐 Step 2: Designing improvement plan... 4 P1 + 1 P2
+   🔧 Step 3: Implementing changes... modified 3 files
+✅ Round 1 complete | Commit: a1b2c3d
+
+🔄 Round 2 | Persona: Senior Student
+   📋 Step 1: Verifying Round 1 fixes + deep testing... found 3 new issues
+   📐 Step 2: Designing improvement plan... 3 items
+   🔧 Step 3: Implementing changes... modified 2 files
+✅ Round 2 complete | Commit: d4e5f6g
+
+🔄 Round 3 | Persona: Senior Student
+   ...
+✅ All 3 rounds complete! 11 improvements implemented.
+```
 
 ## License
 
