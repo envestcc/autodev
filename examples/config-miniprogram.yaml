@@ -1,0 +1,23 @@
+# autodev 配置示例 —— 微信小程序（数学错题本）
+#
+# 使用方法：
+#   首次运行 autodev skill 时会自动交互生成此文件
+#   也可手动创建 .autodev/config.yaml 并填入以下内容
+
+product:
+  name: "数学错题本"
+  description: "一个微信小程序，帮助高中生通过拍照快速录入数学错题，并通过闪卡复习、知识点统计等功能提升复习效率"
+
+personas:
+  - name: "高三理科生"
+    description: "正在备战高考，数学成绩约100-110分（满分150），弱项为解析几何和三角函数，曾用过实体错题本但因太费时间而放弃"
+    focus: ["错题录入效率", "复习体验", "数据统计准确性", "新用户上手体验"]
+
+source_dirs: ["miniprogram"]
+docs_dir: "docs/autodev"
+code_conventions: "微信小程序规范（WXML/WXSS/JS），使用微信云开发，遵循项目现有代码风格"
+
+iteration:
+  max_rounds: 5
+  max_items_per_round: 6
+  commit_prefix: "feat(autodev):"

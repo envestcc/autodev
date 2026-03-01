@@ -1,0 +1,23 @@
+# autodev 配置示例 —— React Web 应用
+#
+# 使用方法：
+#   首次运行 autodev skill 时会自动交互生成此文件
+#   也可手动创建 .autodev/config.yaml 并填入以下内容
+
+product:
+  name: "TaskFlow"
+  description: "一个基于 React 的团队任务管理 Web 应用，支持看板视图、任务分配、截止日期提醒和团队协作"
+
+personas:
+  - name: "项目经理"
+    description: "30 岁，管理 8 人开发团队，每天使用任务管理工具 2-3 小时，之前用过 Trello 和 Notion"
+    focus: ["任务创建流程", "看板拖拽体验", "响应式布局", "加载性能"]
+
+source_dirs: ["src"]
+docs_dir: "docs/autodev"
+code_conventions: "TypeScript + React 18，使用 Tailwind CSS，组件遵循函数式写法，使用 React Query 管理服务端状态"
+
+iteration:
+  max_rounds: 5
+  max_items_per_round: 8
+  commit_prefix: "improve: iteration"

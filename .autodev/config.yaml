@@ -1,0 +1,17 @@
+product:
+  name: "autodev"
+  description: "AI 驱动的产品自动迭代改进引擎，通过 Copilot CLI 驱动「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级"
+
+personas:
+  - name: "独立开发者"
+    description: "有自己的副业/开源项目的独立开发者，希望自动化产品迭代过程，减少重复工作"
+    focus: ["用户体验", "易用性", "上手引导", "文档质量"]
+
+source_dirs: ["skill/"]
+docs_dir: "docs/autodev"
+code_conventions: "Markdown Skill 文件，遵循 Copilot Skill 规范，兼容 claude code skill"
+
+iteration:
+  max_rounds: 2
+  max_items_per_round: 6
+  commit_prefix: "feat(autodev):"

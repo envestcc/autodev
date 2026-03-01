@@ -26,68 +26,121 @@ AI 驱动的产品自动迭代改进引擎。
 2. **阅读反馈报告**，按优先级设计可执行的改进计划
 3. **按计划实施代码修改**，自动 git commit
 
-## 快速开始
+## 快速开始（Copilot Skill 方式，推荐）
+
+Skill 方式无需脚本、无需配置文件模板，直接在 Copilot 会话中交互式使用。
 
 ### 安装
 
 ```bash
-# 克隆仓库
-git clone https://github.com/<your-user>/autodev.git
-cd autodev
-
-# 添加到 PATH（可选）
-ln -s "$(pwd)/autodev.sh" /usr/local/bin/autodev
+# 复制 skill 到用户级目录（所有项目可用）
+mkdir -p ~/.copilot/skills/autodev
+cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
 ```
+
+> **Claude Code 用户**：也可复制到 `~/.claude/skills/autodev/SKILL.md`，格式通用。
 
 ### 前置条件
 
-- [Copilot CLI](https://github.com/github/copilot-cli) 已安装并登录
+- [Copilot CLI](https://github.com/github/copilot-cli) 或 Claude Code 已安装
 - 目标项目是一个 git 仓库
 
 ### 使用
 
+在任何项目中启动 Copilot CLI，直接说：
+
+```
+帮我自动迭代这个项目 5 轮
+```
+
+首次使用会交互式询问产品信息（约 5 个问题），自动生成 `.autodev/config.yaml`，然后开始循环迭代。
+
+### Skill 方式配置（config.yaml）
+
+首次运行时自动生成，也可手动编辑 `.autodev/config.yaml`：
+
+```yaml
+product:
+  name: "数学错题本"
+  description: "帮助高中生整理和复习数学错题"
+
+personas:
+  - name: "高三理科生"
+    description: "数学约110分，弱项为解析几何"
+    focus: ["错题录入效率", "复习体验"]
+
+source_dirs: ["miniprogram"]
+docs_dir: "docs/autodev"
+code_conventions: "微信小程序 WXML/WXSS/JS"
+
+iteration:
+  max_rounds: 5
+  max_items_per_round: 6
+  commit_prefix: "feat(autodev):"
+```
+
+> 更多示例见 [examples/](examples/) 目录。
+
+### Skill 方式输出结构
+
+```
+your-project/
+├── .autodev/
+│   └── config.yaml                     ← 产品配置（自动生成）
+├── docs/autodev/
+│   ├── feedback_round_1.md             ← AI 生成的用户体验反馈
+│   ├── improvement_plan_round_1.md     ← AI 生成的改进计划
+│   ├── feedback_round_2.md
+│   └── ...
+└── src/                                ← AI 直接修改的代码
+```
+
+### Skill vs Shell 脚本
+
+| 特性 | Copilot Skill（推荐） | Shell 脚本 |
+|------|----------------------|-----------|
+| 上下文 | 单一会话，持续记忆 | 每步冷启动 |
+| Prompt | 动态推理，逐轮调整 | 静态模板 |
+| 多角色 | 可中途添加角色 | 需预定义 |
+| 错误修复 | 当场验证并修复 | 下一轮才发现 |
+| 交互控制 | 可随时暂停、调整方向 | 无（全自动） |
+| 安装 | 复制一个 .md 文件 | 复制脚本 + init |
+| 兼容性 | Copilot CLI / Claude Code | 仅 Copilot CLI |
+
+## 方式二：Shell 脚本（高级用法）
+
+Shell 脚本方式适合需要 CI 集成或完全无人值守的场景。
+
+### 安装
+
 ```bash
-# 1. 在你的项目中初始化配置
+git clone https://github.com/<your-user>/autodev.git
+cd autodev
+ln -s "$(pwd)/autodev.sh" /usr/local/bin/autodev
+```
+
+### 使用
+
+```bash
+# 1. 初始化配置
 autodev init ~/dev/my-app
 
-# 2. 编辑配置文件，填入产品信息和用户画像
+# 2. 编辑配置文件
 vim ~/dev/my-app/.autodev/config.sh
 
 # 3. 运行自动迭代
 autodev run ~/dev/my-app -n 5
 ```
 
-## 命令参考
+### 命令参考
 
-### `autodev init <项目路径>`
-
-在目标项目中创建 `.autodev/` 配置目录，包含：
-
-| 文件 | 用途 |
+| 命令 | 说明 |
 |------|------|
-| `config.sh` | 产品名称、用户画像、代码规范等核心配置 |
-| `prompts/feedback.md` | 试用反馈的 prompt 模板 |
-| `prompts/plan.md` | 改进计划的 prompt 模板 |
-| `prompts/implement.md` | 代码实施的 prompt 模板 |
+| `autodev init <路径>` | 初始化配置目录 |
+| `autodev run <路径> [-n N] [-m model] [-s N] [--dry-run]` | 运行迭代 |
+| `autodev status <路径>` | 查看迭代状态 |
 
-### `autodev run <项目路径> [选项]`
-
-运行迭代循环。
-
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `-n, --rounds <N>` | 迭代轮数 | 5 |
-| `-m, --model <model>` | AI 模型 | claude-sonnet-4 |
-| `-s, --start <N>` | 从第 N 轮开始 | 1 |
-| `--dry-run` | 只打印 prompt，不执行 | — |
-
-### `autodev status <项目路径>`
-
-查看项目的迭代历史和状态。
-
-## 配置说明
-
-### config.sh
+### Shell 方式配置（config.sh）
 
 ```bash
 PRODUCT_NAME="数学错题本"                    # 产品名
@@ -102,28 +155,11 @@ FOCUS_AREAS="用户体验、复习功能"               # 关注领域
 FEEDBACK_FORMAT="总体印象、功能点评、Bug、建议" # 报告格式
 ```
 
-### 自定义 Prompt
+### 自定义 Prompt 模板
 
-编辑 `.autodev/prompts/` 下的模板文件。支持以下占位符：
+编辑 `.autodev/prompts/` 下的模板文件，支持 `{{PRODUCT_NAME}}`、`{{ROUND}}` 等占位符。
 
-| 占位符 | 来源 |
-|--------|------|
-| `{{PRODUCT_NAME}}` | config.sh |
-| `{{PRODUCT_DESC}}` | config.sh |
-| `{{USER_PERSONA}}` | config.sh |
-| `{{SOURCE_DIRS}}` | config.sh |
-| `{{DOCS_DIR}}` | config.sh |
-| `{{CODE_CONVENTIONS}}` | config.sh |
-| `{{MAX_ITEMS}}` | config.sh |
-| `{{FOCUS_AREAS}}` | config.sh |
-| `{{FEEDBACK_FORMAT}}` | config.sh |
-| `{{ROUND}}` | 当前轮次 |
-| `{{TOTAL_ROUNDS}}` | 总轮次 |
-| `{{FEEDBACK_FILE}}` | 当前轮反馈文件路径 |
-| `{{PLAN_FILE}}` | 当前轮计划文件路径 |
-| `{{COMMIT_PREFIX}}` | config.sh |
-
-## 输出结构
+### Shell 方式输出结构
 
 ```
 your-project/
@@ -133,50 +169,13 @@ your-project/
 │   │   ├── feedback.md
 │   │   ├── plan.md
 │   │   └── implement.md
-│   └── logs/                           ← 执行日志
-│       ├── round_1_step1_feedback.log
-│       ├── round_1_step2_plan.log
-│       └── round_1_step3_implement.log
+│   └── logs/
 ├── docs/
-│   ├── feedback_round_1.md             ← AI 生成的反馈报告
-│   ├── improvement_plan_round_1.md     ← AI 生成的改进计划
-│   ├── feedback_round_2.md
+│   ├── feedback_round_1.md
+│   ├── improvement_plan_round_1.md
 │   └── ...
-└── src/                                ← AI 直接修改的代码
+└── src/
 ```
-
-## 方式二：Copilot Skill（推荐）
-
-除了 shell 脚本，autodev 还提供 Copilot Skill 方式，**无需脚本、无需配置文件模板**，直接在 Copilot 会话中使用。
-
-### 安装
-
-```bash
-# 复制 skill 到用户级目录（所有项目可用）
-mkdir -p ~/.copilot/skills/autodev
-cp skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
-```
-
-### 使用
-
-在任何项目中启动 Copilot，直接说：
-
-```
-帮我自动迭代这个项目 5 轮
-```
-
-首次使用会交互式询问产品信息，之后自动循环执行。
-
-### Skill vs Shell 脚本
-
-| 特性 | Shell 脚本 | Copilot Skill |
-|------|-----------|---------------|
-| 上下文 | 每步冷启动 | 单一会话，持续记忆 |
-| Prompt | 静态模板 | 动态推理，逐轮调整 |
-| 多角色 | 需预定义 | 可中途添加角色 |
-| 错误修复 | 下一轮才发现 | 当场验证并修复 |
-| 交互控制 | 无（全自动） | 可随时暂停、调整方向 |
-| 安装 | 复制脚本 + init | 复制一个 .md 文件 |
 
 ## License
 
