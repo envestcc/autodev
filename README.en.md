@@ -8,7 +8,7 @@
 
 > 💡 **Let AI iterate your product** — you sleep, it ships code.
 
-Driven by [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code, autodev automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
+Driven by [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI, autodev automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
 
 - 🤖 **Fully Automated** — One command to start, AI reads code, finds issues, writes fixes, commits
 - 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective
@@ -17,10 +17,10 @@ Driven by [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code, au
 ## 30-Second Quick Start
 
 ```bash
-# 1. One-line install (Copilot CLI users)
-mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+# 1. One-line install (Claude Code users)
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
 
-# 2. Launch Copilot CLI in any project and say:
+# 2. Launch Claude Code in any project and say:
 #    "auto iterate this project for 3 rounds"
 
 # 3. Watch AI work ☕
@@ -55,30 +55,30 @@ In each round, the AI will:
 **One-line install (recommended):**
 
 ```bash
-# Copilot CLI users
-mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
-
 # Claude Code users
 mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
+
+# Copilot CLI users
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
 ```
 
 **Or install from source:**
 
 ```bash
 git clone https://github.com/envestcc/autodev.git
-cp autodev/skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
 ```
 
-Verify: `cat ~/.copilot/skills/autodev/SKILL.md | head -3` should output `---`.
+Verify: `cat ~/.claude/skills/autodev/SKILL.md | head -3` should output `---`.
 
 ### Prerequisites
 
-- [Copilot CLI](https://github.com/github/copilot-cli) or Claude Code installed
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) or Copilot CLI installed
 - Target project is a git repository
 
 ### Usage
 
-Launch Copilot CLI in any project and say:
+Launch Claude Code in any project and say:
 
 ```
 auto iterate this project for 5 rounds

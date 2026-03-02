@@ -8,7 +8,7 @@
 
 > 💡 **让 AI 替你做产品迭代** — 你睡觉，它改代码。
 
-通过 [Copilot CLI](https://github.com/github/copilot-cli) / Claude Code 驱动，autodev 自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级。
+通过 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI 驱动，autodev 自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级。
 
 - 🤖 **全自动** — 一句话启动，AI 自动读代码、找问题、写修复、提交 commit
 - 🎭 **多角色** — 配置不同用户画像，每轮从不同视角发现问题
@@ -17,10 +17,10 @@
 ## 30 秒体验
 
 ```bash
-# 1. 一键安装（Copilot CLI 用户）
-mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+# 1. 一键安装（Claude Code 用户）
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
 
-# 2. 在任意项目中启动 Copilot CLI，说：
+# 2. 在任意项目中启动 Claude Code，说：
 #    "帮我自动迭代这个项目 3 轮"
 
 # 3. 看 AI 自动工作 ☕
@@ -55,30 +55,30 @@ mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.c
 **一键安装（推荐）：**
 
 ```bash
-# Copilot CLI 用户
-mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
-
 # Claude Code 用户
 mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
+
+# Copilot CLI 用户
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
 ```
 
 **或从源码安装：**
 
 ```bash
 git clone https://github.com/envestcc/autodev.git
-cp autodev/skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
+cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
 ```
 
-验证安装：`cat ~/.copilot/skills/autodev/SKILL.md | head -3` 应输出 `---`。
+验证安装：`cat ~/.claude/skills/autodev/SKILL.md | head -3` 应输出 `---`。
 
 ### 前置条件
 
-- [Copilot CLI](https://github.com/github/copilot-cli) 或 Claude Code 已安装
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 或 Copilot CLI 已安装
 - 目标项目是一个 git 仓库
 
 ### 使用
 
-在任何项目中启动 Copilot CLI，直接说：
+在任何项目中启动 Claude Code，直接说：
 
 ```
 帮我自动迭代这个项目 5 轮

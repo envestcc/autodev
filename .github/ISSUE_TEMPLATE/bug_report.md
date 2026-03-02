@@ -26,7 +26,7 @@ labels: bug
 ## 环境 / Environment
 
 - OS: [e.g. macOS 14.0]
-- Copilot CLI / Claude Code 版本: 
+- Claude Code / Copilot CLI 版本: 
 - autodev Skill 版本: 
 
 ## 附加信息 / Additional Context

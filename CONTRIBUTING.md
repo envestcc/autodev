@@ -30,7 +30,7 @@ Thank you for your interest in contributing to autodev!
 
 ## 代码规范 / Code Standards
 
-- **SKILL.md**：遵循 Copilot CLI / Claude Code Skill 文件规范
+- **SKILL.md**：遵循 Claude Code / Copilot CLI Skill 文件规范
   - frontmatter 使用 YAML 格式
   - 指令使用 Markdown 格式
   - 保持中英文触发词同步
