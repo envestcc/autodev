@@ -13,6 +13,22 @@ Driven by [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilo
 - 🤖 **Fully Automated** — One command to start, AI reads code, finds issues, writes fixes, commits
 - 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective
 - 🔄 **Continuous Iteration** — Supports 1~N rounds, each building on the previous round's feedback
+- 🪶 **Zero Dependency** — The entire tool is a single 220-line Markdown file, one curl to install
+
+## Why autodev
+
+Existing AI coding tools (aider, OpenHands, Devin, etc.) work from the **developer's perspective** — you tell them what to change, they change it.
+
+autodev is different. It works from the **user's perspective** — AI role-plays as your user, proactively discovers problems, and decides what to fix on its own.
+
+| | autodev | aider | OpenHands | Devin |
+|---|---------|-------|-----------|-------|
+| Approach | Simulate users to find issues | Developer chat to edit code | Autonomously solve Issues | Autonomous SW engineer |
+| User persona simulation | ✅ Multi-role rotation | ❌ | ❌ | ❌ |
+| Auto multi-round loop | ✅ N rounds progressive | ❌ Single conversation | ❌ Single Issue | ❌ Single task |
+| Dynamic per-round strategy | ✅ UX→Edge cases→Security→Perf | ❌ | ❌ | ❌ |
+| Install | One-line `curl` | pip install | Docker deploy | SaaS $500/mo |
+| Dependency | Zero (pure Markdown) | Python | Docker + server | Closed-source cloud |
 
 ## 30-Second Quick Start
 
