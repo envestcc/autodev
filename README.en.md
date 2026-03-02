@@ -92,13 +92,13 @@ Auto-generated on first run, or manually create `.autodev/config.yaml`:
 
 ```yaml
 product:
-  name: "Math Mistake Book"
-  description: "Helps high school students organize and review math mistakes"
+  name: "Personal Budget Tracker"
+  description: "Helps young professionals track daily expenses and analyze spending habits"
 
 personas:
-  - name: "Senior Student"
-    description: "Preparing for exams, math ~110/150, weak in analytic geometry"
-    focus: ["mistake entry efficiency", "review experience"]
+  - name: "New Graduate"
+    description: "Earning entry-level salary, wants to build a budgeting habit"
+    focus: ["expense logging speed", "spending analysis UX"]
 
 source_dirs: ["miniprogram"]
 docs_dir: "docs/autodev"

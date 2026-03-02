@@ -92,13 +92,13 @@ cp autodev/skill/SKILL.md ~/.copilot/skills/autodev/SKILL.md
 
 ```yaml
 product:
-  name: "数学错题本"
-  description: "帮助高中生整理和复习数学错题"
+  name: "个人记账本"
+  description: "帮助年轻人轻松记录日常收支、分析消费习惯"
 
 personas:
-  - name: "高三理科生"
-    description: "数学约110分，弱项为解析几何"
-    focus: ["错题录入效率", "复习体验"]
+  - name: "职场新人"
+    description: "月薪 8k，想养成记账习惯但总坚持不下来"
+    focus: ["记账效率", "消费分析体验"]
 
 source_dirs: ["miniprogram"]
 docs_dir: "docs/autodev"
