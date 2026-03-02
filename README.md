@@ -98,7 +98,9 @@ mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.c
 
 ```bash
 git clone https://github.com/envestcc/autodev.git
-cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
+# 推荐 v2（多 Agent 版）
+cp autodev/skill/SKILL-multi-agent.md ~/.claude/skills/autodev/SKILL.md
+# 如需 v1（经典版）：cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
 ```
 
 验证安装：`cat ~/.claude/skills/autodev/SKILL.md | head -3` 应输出 `---`。

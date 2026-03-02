@@ -98,7 +98,9 @@ mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.c
 
 ```bash
 git clone https://github.com/envestcc/autodev.git
-cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
+# Recommended: v2 (multi-agent)
+cp autodev/skill/SKILL-multi-agent.md ~/.claude/skills/autodev/SKILL.md
+# For v1 (classic): cp autodev/skill/SKILL.md ~/.claude/skills/autodev/SKILL.md
 ```
 
 Verify: `cat ~/.claude/skills/autodev/SKILL.md | head -3` should output `---`.

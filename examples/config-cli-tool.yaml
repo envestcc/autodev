@@ -1,0 +1,28 @@
+# 示例：CLI 开发者工具项目配置
+# 适用于：命令行工具、开发者库、API 服务等面向开发者的项目
+
+product:
+  name: "my-cli-tool"
+  description: "一个帮助开发者快速生成项目脚手架的 CLI 工具"
+
+personas:
+  - name: "初级开发者"
+    description: "刚入行1-2年的开发者，熟悉基本命令行操作，但不熟悉高级配置"
+    focus: ["安装流程", "帮助信息", "错误提示可读性", "文档准确性"]
+
+  - name: "资深开发者"
+    description: "5年+经验，使用过多个同类工具，追求效率和可定制性"
+    focus: ["命令设计合理性", "配置灵活性", "性能", "可编程扩展"]
+
+  - name: "CI/CD 集成者"
+    description: "负责将工具集成到自动化流水线中，关注非交互模式和退出码"
+    focus: ["非交互模式", "退出码规范", "日志输出格式", "环境变量支持"]
+
+source_dirs: ["src", "bin"]
+docs_dir: "docs/autodev"
+code_conventions: "TypeScript/Node.js CLI，使用 commander.js"
+
+iteration:
+  max_rounds: 5
+  max_items_per_round: 6
+  commit_prefix: "feat(autodev):"

@@ -26,7 +26,7 @@ Thank you for your interest in contributing to autodev!
 
 - 每个 PR 聚焦一个改动
 - 清晰描述改动内容和原因
-- 如果修改了 `skill/SKILL.md`，请同时更新 README 中的相关说明
+- 如果修改了 `skill/SKILL.md` 或 `skill/SKILL-multi-agent.md`，请同时检查另一个文件是否需要同步修改，并更新 README 中的相关说明
 
 ## 代码规范 / Code Standards
 
@@ -41,7 +41,9 @@ Thank you for your interest in contributing to autodev!
 
 ```
 autodev/
-├── skill/SKILL.md       ← 核心 Skill 定义文件
+├── skill/
+│   ├── SKILL.md                ← v1 核心 Skill 定义（单 Agent）
+│   └── SKILL-multi-agent.md    ← v2 核心 Skill 定义（多 Agent，推荐）
 ├── README.md            ← 中文文档
 ├── README.en.md         ← English documentation
 ├── CONTRIBUTING.md      ← 贡献指南（本文件）
