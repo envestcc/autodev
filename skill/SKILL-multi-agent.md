@@ -83,10 +83,11 @@ iteration:
   commit_prefix: "feat(autodev):"
 
 # Agent 模型配置（可选，取消注释以自定义）
+# 详见下方「Agent 模型选择指南」了解各模型优劣
 # agents:
-#   user_simulator: "claude-opus-4.5"      # 用户模拟：需要创造力和共情力
-#   planner: "claude-sonnet-4.5"           # 改进规划：需要分析和结构化能力
-#   implementer: "claude-sonnet-4.5"       # 代码实施：需要精确编码能力
+#   user_simulator: "gemini-3-pro-preview"   # 用户模拟：推理深度和 nuance 出色
+#   planner: "claude-sonnet-4.6"             # 改进规划：分析+结构化最佳性价比
+#   implementer: "claude-sonnet-4.6"         # 代码实施：SWE-Bench 79.6%，工具调用稳定
 ```
 
 然后告诉用户："配置完成！可以说 '开始迭代' 或 '迭代 3 轮' 来启动。"
@@ -312,23 +313,70 @@ personas:
 
 轮换规则：第 N 轮使用 `personas[(N-1) % len(personas)]`。
 
-## Agent 模型配置
+## Agent 模型选择指南
 
-可在 config.yaml 中为不同 Agent 指定不同模型：
+可在 config.yaml 中为不同 Agent 指定不同模型，充分发挥各模型特长：
 
 ```yaml
 agents:
-  user_simulator: "claude-opus-4.5"      # 用户模拟：创造力和共情力强
-  planner: "claude-sonnet-4.5"           # 改进规划：分析和结构化能力强
-  implementer: "claude-sonnet-4.5"       # 代码实施：精确编码能力强
+  user_simulator: "gemini-3-pro-preview"   # 用户模拟
+  planner: "claude-sonnet-4.6"             # 改进规划
+  implementer: "claude-sonnet-4.6"         # 代码实施
 ```
 
-模型选择建议：
-- **用户模拟**：推荐高创造力模型（如 opus），更好地代入角色、发现深层体验问题
-- **改进规划**：推荐均衡模型（如 sonnet），分析能力和效率兼顾
-- **代码实施**：推荐高精度模型（如 sonnet），确保代码质量
+如果不配置 `agents` 字段，所有 sub-agent 使用宿主工具的默认模型。
 
-如果不配置 `agents` 字段，所有 sub-agent 使用宿主工具的默认模型（调用 task 工具时不传 model 参数）。
+### 推荐方案
+
+| 角色 | 🏆 最佳质量 | ⚖️ 均衡推荐 | 💰 省配额 |
+|------|------------|------------|----------|
+| 用户模拟 | `claude-opus-4.6` | `gemini-3-pro-preview` | `claude-sonnet-4.6` |
+| 改进规划 | `claude-sonnet-4.6` | `claude-sonnet-4.6` | `claude-haiku-4.5` |
+| 代码实施 | `gpt-5.3-codex` | `claude-sonnet-4.6` | `gpt-5.1-codex` |
+
+### 各角色选型依据
+
+**Step 1 用户模拟 — 关键能力：创造力、共情力、角色扮演**
+
+- **Opus 4.6**（premium）：最强创造性推理，角色代入最自然，能发现深层体验问题。消耗 premium 配额。
+- **Gemini 3 Pro**（standard，推荐）：推理深度和 nuance 出色（"unprecedented depth and nuance"），ARC-AGI 抽象推理 77.1%，standard 配额即可。
+- **Sonnet 4.6**（standard）：能力够用但创造力不如上述两者，适合预算紧张时。
+- ❌ GPT Codex 系列不推荐：编码优化模型，角色扮演非其强项。
+
+**Step 2 改进规划 — 关键能力：分析力、结构化思维、技术方案设计**
+
+- **Sonnet 4.6**（standard，推荐）：速度 + 智能最佳平衡，SWE-Bench 79.6% 说明代码理解能力强，结构化输出稳定。
+- **Gemini 3 Pro**（standard）：推理能力顶级，MCP 工具调用 69.2% 最高，但规划 step 无需工具调用。
+- **Haiku 4.5**（fast/cheap）：$1/MTok，速度最快。简单项目规划够用，复杂项目可能不够细致。
+- ❌ Opus 4.6 能力过剩：规划 step 不需要最强创造力，premium 配额性价比低。
+
+**Step 3 代码实施 — 关键能力：精确编码、工具调用、测试验证**
+
+- **GPT-5.3 Codex**（standard，最佳编码）：Terminal-Bench **77.3%** 碾压全场（Opus 65.4%、Sonnet 59.1%），专为终端编码和工具调用优化。
+- **Sonnet 4.6**（standard，推荐）：SWE-Bench 79.6%，工具调用全面稳定，无短板。
+- **Opus 4.6**（premium）：SWE-Bench **80.8%** 最高，但 premium 配额消耗大。
+- **GPT-5.1 Codex**（standard）：编码能力好、配额友好，适合简单改进。
+
+### 可用模型一览
+
+| 模型 | 提供商 | 定位 | 特长 |
+|------|--------|------|------|
+| `claude-opus-4.6` | Anthropic | premium | 最强智能，agent 构建，创造性推理 |
+| `claude-opus-4.6-fast` | Anthropic | premium | 同 Opus 4.6，低延迟模式 |
+| `claude-sonnet-4.6` | Anthropic | standard | 速度+智能最佳平衡 |
+| `claude-haiku-4.5` | Anthropic | fast/cheap | 最快，近前沿智能 |
+| `gemini-3-pro-preview` | Google | standard | SOTA 推理深度，最佳 MCP 工具调用 |
+| `gpt-5.3-codex` | OpenAI | standard | 终端编码能力最强 |
+| `gpt-5.2-codex` | OpenAI | standard | 强编码专精 |
+| `gpt-5.2` | OpenAI | standard | 通用能力强 |
+| `gpt-5.1-codex-max` | OpenAI | standard | 编码+扩展计算 |
+| `gpt-5.1-codex` | OpenAI | standard | 编码能力好 |
+| `gpt-5.1` | OpenAI | standard | 通用 |
+| `gpt-5.1-codex-mini` | OpenAI | fast/cheap | 快速编码 |
+| `gpt-5-mini` | OpenAI | fast/cheap | 快速通用 |
+| `gpt-4.1` | OpenAI | fast/cheap | 轻量快速 |
+
+> **配额提示**：premium 模型（Opus）消耗高级配额；standard 模型消耗普通配额；fast/cheap 模型消耗最少。建议日常使用均衡方案，重要发布前切换最佳质量方案。
 
 ## 中途控制
 
