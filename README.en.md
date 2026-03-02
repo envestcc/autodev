@@ -159,19 +159,19 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 $ copilot-cli
 > auto iterate this project for 3 rounds
 
-🔄 Round 1 | Persona: Senior Student
+🔄 Round 1 | Persona: New Graduate
    📋 Step 1: Simulating user experience... found 5 issues
    📐 Step 2: Designing improvement plan... 4 P1 + 1 P2
    🔧 Step 3: Implementing changes... modified 3 files
 ✅ Round 1 complete | Commit: a1b2c3d
 
-🔄 Round 2 | Persona: Senior Student
+🔄 Round 2 | Persona: New Graduate
    📋 Step 1: Verifying Round 1 fixes + deep testing... found 3 new issues
    📐 Step 2: Designing improvement plan... 3 items
    🔧 Step 3: Implementing changes... modified 2 files
 ✅ Round 2 complete | Commit: d4e5f6g
 
-🔄 Round 3 | Persona: Senior Student
+🔄 Round 3 | Persona: New Graduate
    ...
 ✅ All 3 rounds complete! 11 improvements implemented.
 ```
