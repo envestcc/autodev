@@ -30,11 +30,24 @@ autodev is different. It works from the **user's perspective** — AI role-plays
 | Install | One-line `curl` | pip install | Docker deploy | SaaS $500/mo |
 | Dependency | Zero (pure Markdown) | Python | Docker + server | Closed-source cloud |
 
+## Two Versions
+
+| | v1 (`SKILL.md`) | v2 (`SKILL-multi-agent.md`) |
+|---|---|---|
+| Architecture | Single context, inline execution | Multi-agent, isolated context per Step |
+| Models | Single model | Different model per role |
+| Context isolation | ❌ All steps share context | ✅ Clean isolation per step |
+| Long-run stability | ⚠️ Context may overflow after 3+ rounds | ✅ Fresh context every step |
+| Compatibility | Any tool supporting Skills | Requires sub-agent support (task tool) |
+| Complexity | Simple, ~220 lines | Richer, ~300 lines |
+
+**Recommended**: Use v2 if your tool supports sub-agents (Copilot CLI, Claude Code). Otherwise use v1.
+
 ## 30-Second Quick Start
 
 ```bash
 # 1. One-line install (Claude Code users)
-mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL-multi-agent.md -o ~/.claude/skills/autodev/SKILL.md
 
 # 2. Launch Claude Code in any project and say:
 #    "auto iterate this project for 3 rounds"
@@ -71,11 +84,14 @@ In each round, the AI will:
 **One-line install (recommended):**
 
 ```bash
-# Claude Code users
-mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.claude/skills/autodev/SKILL.md
+# v2 Multi-Agent (recommended, Claude Code users)
+mkdir -p ~/.claude/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL-multi-agent.md -o ~/.claude/skills/autodev/SKILL.md
 
-# Copilot CLI users
-mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL.md -o ~/.copilot/skills/autodev/SKILL.md
+# v2 Multi-Agent (Copilot CLI users)
+mkdir -p ~/.copilot/skills/autodev && curl -fsSL https://raw.githubusercontent.com/envestcc/autodev/main/skill/SKILL-multi-agent.md -o ~/.copilot/skills/autodev/SKILL.md
+
+# v1 Classic (if your tool doesn't support sub-agents)
+# Replace SKILL-multi-agent.md with SKILL.md in the URL above
 ```
 
 **Or install from source:**
