@@ -1,36 +1,81 @@
 [English](README.en.md) | 中文
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/envestcc/autodev)](https://github.com/envestcc/autodev/stargazers)
-[![GitHub last commit](https://img.shields.io/github/last-commit/envestcc/autodev)](https://github.com/envestcc/autodev/commits/main)
+<div align="center">
 
-# autodev
+<h1>🤖 autodev</h1>
 
-> 💡 **让 AI 替你做产品迭代** — 你睡觉，它改代码。
+<p><strong>让 AI 替你做产品迭代 — 你睡觉，它改代码。</strong></p>
 
-通过 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI 驱动，autodev 自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级。
+<p>
+  <a href="https://github.com/envestcc/autodev/stargazers"><img src="https://img.shields.io/github/stars/envestcc/autodev?style=social" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://github.com/envestcc/autodev/commits/main"><img src="https://img.shields.io/github/last-commit/envestcc/autodev" alt="Last commit"></a>
+  <a href="https://github.com/envestcc/autodev/issues"><img src="https://img.shields.io/github/issues/envestcc/autodev" alt="Issues"></a>
+  <a href="https://github.com/envestcc/autodev/network/members"><img src="https://img.shields.io/github/forks/envestcc/autodev?style=social" alt="Forks"></a>
+</p>
 
-- 🤖 **全自动** — 一句话启动，AI 自动读代码、找问题、写修复、提交 commit
-- 🎭 **多角色** — 配置不同用户画像，每轮从不同视角发现问题（含[预置模板](personas/)）
-- 🔄 **持续迭代** — 支持 1~N 轮循环，每轮基于上一轮反馈递进改进
-- 🪶 **零依赖** — 整个工具就是一个 Markdown 文件，一行 curl 安装
-- 🔍 **dry-run** — 先分析不改代码，审阅后再决定是否实施
-- 🎯 **聚焦模式** — `focus_paths` / `exclude_paths` 精准控制分析范围
+<p>
+  AI 扮演你的用户，自动发现问题 → 设计方案 → 写代码 → 提交 commit<br/>
+  一行安装 · 零依赖 · 纯 Markdown · 兼容 <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> & Copilot CLI
+</p>
 
-## 为什么选择 autodev
+<br/>
 
-市面上的 AI 编码工具（aider、OpenHands、Devin 等）都是**开发者视角**——你告诉它改什么，它帮你改。
+```
+"帮我自动迭代这个项目 5 轮"
+```
 
-autodev 不同，它是**用户视角**——AI 扮演你的用户，主动发现问题，自己决定改什么。
+```
+🔄 第 1 轮 | 角色: 职场新人
+   📋 模拟试用... 发现 5 个问题
+   📐 设计改进... 4×P1 + 1×P2
+   🔧 实施改进... 修改 3 个文件
+✅ 提交: a1b2c3d
+
+🔄 第 2 轮 | 角色: 职场新人
+   📋 验证修复 + 深入测试... 3 个新问题
+   📐 设计改进... 3 项
+   🔧 实施改进... 修改 2 个文件
+✅ 提交: d4e5f6g
+
+✅ 全部完成！共实施 11 项改进。
+```
+
+</div>
+
+---
+
+## ✨ 特性
+
+<table>
+<tr>
+<td>🤖 <b>全自动</b><br/>一句话启动，AI 读代码→找问题→写修复→提交 commit</td>
+<td>🎭 <b>多角色</b><br/>不同用户画像轮换，多视角发现问题（<a href="personas/">预置模板</a>）</td>
+</tr>
+<tr>
+<td>🔄 <b>N 轮递进</b><br/>每轮基于上一轮反馈，螺旋式改进</td>
+<td>🪶 <b>零依赖</b><br/>一个 Markdown 文件，一行 curl 安装</td>
+</tr>
+<tr>
+<td>🔍 <b>dry-run</b><br/>先分析不改代码，审阅后再实施</td>
+<td>🎯 <b>聚焦模式</b><br/><code>focus_paths</code> 精准控制分析范围</td>
+</tr>
+</table>
+
+## 💡 为什么选择 autodev
+
+> **别的 AI 工具：** 你说改什么，它帮你改。<br/>
+> **autodev：** AI 主动发现问题，自己决定改什么。
+
+这是**唯一**从用户视角出发的 AI 编码工具 —— AI 扮演真实用户，而不是听指令的码农。
 
 | | autodev | aider | OpenHands | Devin |
 |---|---------|-------|-----------|-------|
-| 核心思路 | 模拟用户发现问题 | 开发者对话改代码 | 自主解决 Issue | 自主软件工程师 |
-| 用户画像模拟 | ✅ 多角色轮换 | ❌ | ❌ | ❌ |
-| 自动多轮循环 | ✅ N 轮递进 | ❌ 单次对话 | ❌ 单 Issue | ❌ 单任务 |
-| 每轮动态策略 | ✅ UX→边缘→安全→性能 | ❌ | ❌ | ❌ |
-| 安装 | `curl` 一行 | pip install | Docker 部署 | SaaS $500/月 |
-| 依赖 | 零（纯 Markdown） | Python | Docker + 服务端 | 闭源云服务 |
+| **核心思路** | 🎭 模拟用户发现问题 | 💬 对话改代码 | 🎫 自主解决 Issue | 🤖 自主工程师 |
+| **用户画像模拟** | ✅ 多角色轮换 | ❌ | ❌ | ❌ |
+| **自动多轮** | ✅ N 轮递进 | ❌ 单次对话 | ❌ 单 Issue | ❌ 单任务 |
+| **安装** | `curl` 一行 | pip install | Docker 部署 | SaaS $500/月 |
+| **依赖** | 零（纯 Markdown） | Python | Docker + 服务端 | 闭源云服务 |
 
 ## 两个版本
 
@@ -233,28 +278,26 @@ iteration:
 
 请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## 实际运行效果
+## Star History
 
-```
-$ copilot-cli
-> 帮我自动迭代这个项目 3 轮
+<a href="https://star-history.com/#envestcc/autodev&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date" />
+ </picture>
+</a>
 
-🔄 第 1 轮开始 | 角色: 职场新人
-   📋 Step 1: 模拟用户试用... 发现 5 个问题
-   📐 Step 2: 设计改进计划... 4 项 P1 + 1 项 P2
-   🔧 Step 3: 实施改进... 修改 3 个文件
-✅ 第 1 轮完成 | 提交: a1b2c3d
+## 💪 Show Your Support
 
-🔄 第 2 轮开始 | 角色: 职场新人
-   📋 Step 1: 验证第 1 轮修复 + 深入测试... 发现 3 个新问题
-   📐 Step 2: 设计改进计划... 3 项
-   🔧 Step 3: 实施改进... 修改 2 个文件
-✅ 第 2 轮完成 | 提交: d4e5f6g
+如果觉得有用，请给一个 ⭐ Star！这是对我最大的鼓励。
 
-🔄 第 3 轮开始 | 角色: 职场新人
-   ...
-✅ 全部 3 轮完成！共实施 11 项改进。
-```
+[![Star this repo](https://img.shields.io/github/stars/envestcc/autodev?style=social)](https://github.com/envestcc/autodev)
+
+**分享给朋友：**
+
+[![Share on Twitter](https://img.shields.io/badge/Share-Twitter-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/intent/tweet?text=🤖%20autodev%20—%20让AI替你做产品迭代：模拟用户→发现问题→写代码→提交commit。一行安装，零依赖！&url=https://github.com/envestcc/autodev)
+[![Share on Reddit](https://img.shields.io/badge/Share-Reddit-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/submit?url=https://github.com/envestcc/autodev&title=autodev%20-%20AI-driven%20product%20auto-iteration%20engine)
 
 ## License
 

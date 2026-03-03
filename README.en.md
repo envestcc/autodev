@@ -1,36 +1,81 @@
 [中文](README.md) | English
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/envestcc/autodev)](https://github.com/envestcc/autodev/stargazers)
-[![GitHub last commit](https://img.shields.io/github/last-commit/envestcc/autodev)](https://github.com/envestcc/autodev/commits/main)
+<div align="center">
 
-# autodev
+<h1>🤖 autodev</h1>
 
-> 💡 **Let AI iterate your product** — you sleep, it ships code.
+<p><strong>Let AI iterate your product — you sleep, it ships code.</strong></p>
 
-Driven by [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI, autodev automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
+<p>
+  <a href="https://github.com/envestcc/autodev/stargazers"><img src="https://img.shields.io/github/stars/envestcc/autodev?style=social" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://github.com/envestcc/autodev/commits/main"><img src="https://img.shields.io/github/last-commit/envestcc/autodev" alt="Last commit"></a>
+  <a href="https://github.com/envestcc/autodev/issues"><img src="https://img.shields.io/github/issues/envestcc/autodev" alt="Issues"></a>
+  <a href="https://github.com/envestcc/autodev/network/members"><img src="https://img.shields.io/github/forks/envestcc/autodev?style=social" alt="Forks"></a>
+</p>
 
-- 🤖 **Fully Automated** — One command to start, AI reads code, finds issues, writes fixes, commits
-- 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective ([templates included](personas/))
-- 🔄 **Continuous Iteration** — Supports 1~N rounds, each building on the previous round's feedback
-- 🪶 **Zero Dependency** — The entire tool is a single Markdown file, one curl to install
-- 🔍 **Dry-run** — Analyze without modifying code, review before implementing
-- 🎯 **Focus Mode** — `focus_paths` / `exclude_paths` to control analysis scope
+<p>
+  AI role-plays your users, discovers issues → designs fixes → writes code → commits<br/>
+  One-line install · Zero dependency · Pure Markdown · Works with <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> & Copilot CLI
+</p>
 
-## Why autodev
+<br/>
 
-Existing AI coding tools (aider, OpenHands, Devin, etc.) work from the **developer's perspective** — you tell them what to change, they change it.
+```
+"auto iterate this project for 5 rounds"
+```
 
-autodev is different. It works from the **user's perspective** — AI role-plays as your user, proactively discovers problems, and decides what to fix on its own.
+```
+🔄 Round 1 | Persona: New Graduate
+   📋 Simulating usage... found 5 issues
+   📐 Designing fixes... 4×P1 + 1×P2
+   🔧 Implementing... modified 3 files
+✅ Commit: a1b2c3d
+
+🔄 Round 2 | Persona: New Graduate
+   📋 Verifying + deeper testing... 3 new issues
+   📐 Designing fixes... 3 items
+   🔧 Implementing... modified 2 files
+✅ Commit: d4e5f6g
+
+✅ Done! 11 improvements shipped.
+```
+
+</div>
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td>🤖 <b>Fully Automated</b><br/>One command: AI reads code → finds issues → writes fixes → commits</td>
+<td>🎭 <b>Multi-Persona</b><br/>Rotate user personas each round for diverse perspectives (<a href="personas/">templates included</a>)</td>
+</tr>
+<tr>
+<td>🔄 <b>N-Round Progressive</b><br/>Each round builds on the last, spiral improvement</td>
+<td>🪶 <b>Zero Dependency</b><br/>One Markdown file, one curl to install</td>
+</tr>
+<tr>
+<td>🔍 <b>Dry-run</b><br/>Analyze without changing code, review first</td>
+<td>🎯 <b>Focus Mode</b><br/><code>focus_paths</code> to scope analysis precisely</td>
+</tr>
+</table>
+
+## 💡 Why autodev
+
+> **Other AI tools:** You tell it what to change, it changes it.<br/>
+> **autodev:** AI discovers problems itself and decides what to fix.
+
+The **only** AI coding tool that works from the user's perspective — AI plays your users, not your obedient coder.
 
 | | autodev | aider | OpenHands | Devin |
 |---|---------|-------|-----------|-------|
-| Approach | Simulate users to find issues | Developer chat to edit code | Autonomously solve Issues | Autonomous SW engineer |
-| User persona simulation | ✅ Multi-role rotation | ❌ | ❌ | ❌ |
-| Auto multi-round loop | ✅ N rounds progressive | ❌ Single conversation | ❌ Single Issue | ❌ Single task |
-| Dynamic per-round strategy | ✅ UX→Edge cases→Security→Perf | ❌ | ❌ | ❌ |
-| Install | One-line `curl` | pip install | Docker deploy | SaaS $500/mo |
-| Dependency | Zero (pure Markdown) | Python | Docker + server | Closed-source cloud |
+| **Approach** | 🎭 Simulate users to find issues | 💬 Chat to edit code | 🎫 Solve Issues | 🤖 Autonomous engineer |
+| **User persona simulation** | ✅ Multi-role rotation | ❌ | ❌ | ❌ |
+| **Auto multi-round** | ✅ N rounds progressive | ❌ Single conversation | ❌ Single Issue | ❌ Single task |
+| **Install** | One-line `curl` | pip install | Docker deploy | SaaS $500/mo |
+| **Dependency** | Zero (pure Markdown) | Python | Docker + server | Closed-source cloud |
 
 ## Two Versions
 
@@ -233,28 +278,26 @@ During iteration, you can say at any time:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## Demo Output
+## Star History
 
-```
-$ copilot-cli
-> auto iterate this project for 3 rounds
+<a href="https://star-history.com/#envestcc/autodev&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=envestcc/autodev&type=Date" />
+ </picture>
+</a>
 
-🔄 Round 1 | Persona: New Graduate
-   📋 Step 1: Simulating user experience... found 5 issues
-   📐 Step 2: Designing improvement plan... 4 P1 + 1 P2
-   🔧 Step 3: Implementing changes... modified 3 files
-✅ Round 1 complete | Commit: a1b2c3d
+## 💪 Show Your Support
 
-🔄 Round 2 | Persona: New Graduate
-   📋 Step 1: Verifying Round 1 fixes + deep testing... found 3 new issues
-   📐 Step 2: Designing improvement plan... 3 items
-   🔧 Step 3: Implementing changes... modified 2 files
-✅ Round 2 complete | Commit: d4e5f6g
+If you find this useful, please give it a ⭐ Star! It means a lot.
 
-🔄 Round 3 | Persona: New Graduate
-   ...
-✅ All 3 rounds complete! 11 improvements implemented.
-```
+[![Star this repo](https://img.shields.io/github/stars/envestcc/autodev?style=social)](https://github.com/envestcc/autodev)
+
+**Share with friends:**
+
+[![Share on Twitter](https://img.shields.io/badge/Share-Twitter-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/intent/tweet?text=🤖%20autodev%20—%20AI%20simulates%20your%20users,%20finds%20issues,%20and%20ships%20fixes%20automatically.%20Zero%20dependency,%20one-line%20install!&url=https://github.com/envestcc/autodev)
+[![Share on Reddit](https://img.shields.io/badge/Share-Reddit-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/submit?url=https://github.com/envestcc/autodev&title=autodev%20-%20AI-driven%20product%20auto-iteration%20engine)
 
 ## License
 
