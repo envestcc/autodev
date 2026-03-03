@@ -106,10 +106,19 @@ iteration:
 ### 准备工作（Orchestrator 自己做）
 
 1. 读取 `.autodev/config.yaml` 获取配置
-2. 扫描 `docs_dir` 目录，统计已有的 `feedback_round_N.md` 文件数量，确定本轮起始轮数
-3. 确定本轮使用哪个 persona：`personas[(N-1) % len(personas)]`
-4. 读取 `agents` 配置确定各 Agent 使用的模型（如未配置则使用默认）
-5. 确定本轮动态策略关注点（见下方策略表）
+2. **校验配置完整性**：确认以下必填字段存在且格式正确，否则报错并通过 ask_user 提示用户修复：
+   - `product.name`（字符串，非空）
+   - `product.description`（字符串，非空）
+   - `personas`（数组，至少 1 项，每项需有 `name`、`description`、`focus`）
+   - `source_dirs`（字符串数组，至少 1 项，且目录必须存在于项目中）
+   - `docs_dir`（字符串，非空）
+   - `iteration.max_items_per_round`（正整数，默认 6）
+   - `iteration.commit_prefix`（字符串，默认 `"feat(autodev):"`)
+   - 可选字段：`code_conventions`（字符串）、`iteration.max_rounds`（正整数）、`agents`（对象）
+3. 扫描 `docs_dir` 目录，统计已有的 `feedback_round_N.md` 文件数量，确定本轮起始轮数
+4. 确定本轮使用哪个 persona：`personas[(N-1) % len(personas)]`
+5. 读取 `agents` 配置确定各 Agent 使用的模型（如未配置则使用默认）
+6. 确定本轮动态策略关注点（见下方策略表）
 
 **动态策略表**（传递给 Step 1 Agent）：
 
@@ -263,6 +272,9 @@ task tool 调用参数：
    - 将该项标记为"实施失败"并记录原因，继续下一项
 5. 如果某项改进风险太大，跳过并在输出中说明原因
 6. 改动范围最小化——只修改计划中提到的内容
+7. **逐项 commit**：每个改进项实施并验证通过后，立即执行 `git add -A && git commit`，commit message：`{commit_prefix} 第N轮-改进项M: [标题简述]`
+   - 每项改动独立可追溯，失败回滚不影响已提交的成功项
+   - 实施失败的改进项不产生 commit
 
 ## 输出要求
 完成所有改进后，输出以下格式的总结（直接输出文本，不要保存到文件）：
@@ -275,8 +287,9 @@ task tool 调用参数：
 ```
 
 **Agent 完成后，Orchestrator 执行**：
-1. 读取 Agent 的输出，统计实施/跳过数量
-2. 执行 `git add -A && git commit`，commit message：`{commit_prefix} 第{N}轮 - [要点简述]`
+1. 读取 Agent 的输出，统计实施/跳过/失败数量
+2. 确认本轮的逐项 commit 已由 Agent 完成（检查 `git log` 确认有对应 commit）
+3. 如果 Agent 未执行逐项 commit，则兜底执行 `git add -A && git commit`，commit message：`{commit_prefix} 第{N}轮 - [要点简述]`
 
 ### 轮次结束
 
@@ -286,8 +299,8 @@ Orchestrator 输出简要总结：
    角色: {persona.name}
    反馈: {docs_dir}/feedback_round_N.md     [用户模拟 Agent]
    计划: {docs_dir}/improvement_plan_round_N.md  [改进规划 Agent]
-   改进: {X} 项实施 / {Y} 项跳过           [代码实施 Agent]
-   提交: {commit hash}
+   改进: {X} 项实施 / {Y} 项跳过 / {Z} 项失败  [代码实施 Agent]
+   提交: {commit hash 1}, {commit hash 2}, ...
 ```
 
 然后自动进入下一轮，直到达到目标轮数。

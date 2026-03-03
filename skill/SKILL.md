@@ -80,9 +80,18 @@ iteration:
 ### 准备工作
 
 1. 读取 `.autodev/config.yaml` 获取配置
-2. 扫描 `docs_dir` 目录，了解已有的反馈和计划（如果有之前的轮次）
-3. 确定本轮使用哪个 persona（按轮换策略）
-4. 确定本轮的起始轮数（检查已有的 `feedback_round_N.md` 文件，从下一轮开始）
+2. **校验配置完整性**：确认以下必填字段存在且格式正确，否则报错并提示用户修复：
+   - `product.name`（字符串，非空）
+   - `product.description`（字符串，非空）
+   - `personas`（数组，至少 1 项，每项需有 `name`、`description`、`focus`）
+   - `source_dirs`（字符串数组，至少 1 项，且目录必须存在于项目中）
+   - `docs_dir`（字符串，非空）
+   - `iteration.max_items_per_round`（正整数，默认 6）
+   - `iteration.commit_prefix`（字符串，默认 `"feat(autodev):"`)
+   - 可选字段：`code_conventions`（字符串）、`iteration.max_rounds`（正整数）
+3. 扫描 `docs_dir` 目录，了解已有的反馈和计划（如果有之前的轮次）
+4. 确定本轮使用哪个 persona（按轮换策略）
+5. 确定本轮的起始轮数（检查已有的 `feedback_round_N.md` 文件，从下一轮开始）
 
 ### Step 1：模拟用户试用（生成反馈）
 
@@ -166,7 +175,10 @@ iteration:
    - 将该项标记为"实施失败"，记录失败原因，继续下一项
    - 如果连续 2 项实施失败，暂停并通过 ask_user 询问用户是否继续
 5. 如果某项改进风险太大，跳过并记录原因
-6. 全部完成后 git commit：`{commit_prefix} 第N轮 - [要点简述]`
+6. **逐项 commit**：每个改进项实施并验证通过后，立即执行 `git add -A && git commit`，commit message：`{commit_prefix} 第N轮-改进项M: [标题简述]`
+   - 好处：每项改动独立可追溯，失败回滚不影响已提交的成功项
+   - 如果某项实施失败并回滚，不会产生 commit
+   - 全部完成后，本轮的所有 commit 自然形成一组连续的改进记录
 
 ### 轮次结束
 
@@ -176,8 +188,8 @@ iteration:
    角色: {persona}
    反馈: docs/autodev/feedback_round_N.md
    计划: docs/autodev/improvement_plan_round_N.md  
-   改进: {X} 项实施 / {Y} 项跳过
-   提交: {commit hash}
+   改进: {X} 项实施 / {Y} 项跳过 / {Z} 项失败
+   提交: {commit hash 1}, {commit hash 2}, ...
 ```
 
 然后自动进入下一轮，直到达到目标轮数。
