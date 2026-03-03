@@ -85,6 +85,10 @@ source_dirs: ["用户回答"]
 docs_dir: "docs/autodev"
 # code_conventions: "自动检测项目技术栈，如需覆盖请取消注释并填写"
 
+# 聚焦模式（可选）：限制 AI 只关注特定路径，适合大型项目
+# focus_paths: ["src/auth/", "src/api/"]       # 只分析和修改这些路径
+# exclude_paths: ["src/vendor/", "dist/"]      # 排除这些路径（不分析、不修改）
+
 iteration:
   max_rounds: 5
   max_items_per_round: 6
@@ -180,7 +184,9 @@ task tool 调用参数：
 这是第 {N} 轮迭代。{对应的动态策略描述}
 
 ## 你的任务
-1. 阅读以下源代码目录中的所有文件：{source_dirs}
+1. 阅读以下源代码目录中的文件：{source_dirs}
+   - 如果配置了 focus_paths，优先深入分析这些路径：{focus_paths}
+   - 如果配置了 exclude_paths，跳过这些路径：{exclude_paths}
 2. 阅读以下历史文档（如果存在）：{docs_dir} 下的所有 .md 文件
 3. 完全代入角色，以用户身份模拟试用每个功能
 4. 生成详细的反馈报告
@@ -385,11 +391,24 @@ task tool 调用参数：
 ### 全部轮次完成后
 
 1. **删除并发锁**：删除 `.autodev/.lock` 文件
-2. 通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
+2. **输出迭代总结报告**，格式如下：
+   ```
+   📊 迭代总结（共 {N} 轮）
+   ────────────────────────
+   累计改进: {总实施} 项实施 / {总跳过} 项跳过 / {总失败} 项失败
+   修改文件: {总文件数} 个文件
+   问题趋势: 第1轮 {X1} 个 → 第N轮 {XN} 个（{↑/↓ 百分比}）
+   
+   各轮概况:
+     第 1 轮 [{persona}] — {X} 项实施，发现 {Y} 个问题
+     第 2 轮 [{persona}] — {X} 项实施，发现 {Y} 个问题（其中 {Z} 个为上轮遗留）
+     ...
+   ```
+3. 通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
 
-1. **保留并提交** — 将 docs_dir 下的反馈和计划文件保留在仓库中，作为迭代历史记录
-2. **保留但不提交** — 将 `{docs_dir}/` 加入 `.gitignore`，文件留在本地但不进入仓库
-3. **删除** — 删除所有 feedback_round_*.md 和 improvement_plan_round_*.md 文件，只保留代码改动
+   1. **保留并提交** — 将 docs_dir 下的反馈和计划文件保留在仓库中，作为迭代历史记录
+   2. **保留但不提交** — 将 `{docs_dir}/` 加入 `.gitignore`，文件留在本地但不进入仓库
+   3. **删除** — 删除所有 feedback_round_*.md 和 improvement_plan_round_*.md 文件，只保留代码改动
 
 按用户选择执行对应操作。如果用户选择删除或 gitignore，做一次额外的 git commit 记录清理动作。
 
