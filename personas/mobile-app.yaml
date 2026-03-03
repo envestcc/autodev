@@ -1,0 +1,20 @@
+# Persona 模板：移动端 App
+# 适用于：iOS/Android App、小程序、PWA
+# 用法：复制需要的 persona 到你的 .autodev/config.yaml 的 personas 数组中
+
+personas:
+  - name: "年轻用户"
+    description: "18-25岁，手机重度用户，追求流畅和好看，耐心有限"
+    focus: ["加载速度", "动画流畅度", "视觉设计", "分享功能"]
+
+  - name: "中年用户"
+    description: "40-55岁，视力开始下降，偏好大字体和简洁界面"
+    focus: ["字体大小", "对比度", "操作简洁性", "帮助提示"]
+
+  - name: "无障碍用户"
+    description: "视力障碍，依赖屏幕阅读器（VoiceOver/TalkBack）"
+    focus: ["可访问性标签", "键盘导航", "色彩对比度", "语音提示"]
+
+  - name: "弱网用户"
+    description: "经常在地铁/电梯等弱网环境使用，关注离线能力"
+    focus: ["离线体验", "弱网加载", "数据缓存", "错误恢复"]

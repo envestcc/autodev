@@ -1,0 +1,16 @@
+# Persona 模板：SaaS 产品
+# 适用于：B2B SaaS、管理后台、企业工具
+# 用法：复制需要的 persona 到你的 .autodev/config.yaml 的 personas 数组中
+
+personas:
+  - name: "免费试用用户"
+    description: "刚注册试用，14天试用期内评估是否值得付费，会与竞品对比"
+    focus: ["注册上手", "核心功能体验", "付费引导", "与竞品差异"]
+
+  - name: "付费用户"
+    description: "已付费的中小团队管理者，期望稳定高效，对 bug 容忍度低"
+    focus: ["稳定性", "性能", "数据导出", "团队协作"]
+
+  - name: "企业管理员"
+    description: "IT 管理员，负责账号管理、权限配置和安全合规"
+    focus: ["权限管理", "SSO集成", "审计日志", "数据安全"]

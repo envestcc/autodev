@@ -1,0 +1,20 @@
+# Persona 模板：电商平台
+# 适用于：在线商城、marketplace、购物 App
+# 用法：复制需要的 persona 到你的 .autodev/config.yaml 的 personas 数组中
+
+personas:
+  - name: "普通买家"
+    description: "25-35岁，每周网购1-2次，习惯货比三家，对价格敏感"
+    focus: ["搜索体验", "商品详情页", "下单流程", "价格展示"]
+
+  - name: "高频买家"
+    description: "重度网购用户，每天都会浏览，关注物流速度和售后"
+    focus: ["订单追踪", "售后流程", "收藏夹", "个性化推荐"]
+
+  - name: "卖家/商户"
+    description: "小型商户店主，管理几十个 SKU，关注后台操作效率"
+    focus: ["商品上架", "库存管理", "订单处理", "数据报表"]
+
+  - name: "客服人员"
+    description: "每天处理上百条咨询，需要快速定位用户问题"
+    focus: ["工单系统", "用户信息查询", "退款流程", "常见问题"]
