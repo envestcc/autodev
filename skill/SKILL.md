@@ -69,6 +69,13 @@ iteration:
   # dry_run: false       # 设为 true 则仅分析不改代码（仅执行 Step 1 + 2）
   # enable_verification: false  # 设为 true 则在 Step 3 后增加验证步骤（Step 4）
 
+# 生命周期 Hook（可选）：在特定节点自动执行命令，失败则中止当前步骤
+# hooks:
+#   before_step3: "npm run lint"           # Step 3 实施前执行（如 lint 检查）
+#   after_each_item: "npm test"            # 每个改进项实施后执行（替代自动检测测试）
+#   after_step3: "npm run build"           # Step 3 全部完成后执行（如构建验证）
+#   after_round: "npm run e2e"             # 每轮结束后执行（如端到端测试）
+
 # 角色轮换策略：不同轮次使用不同角色视角
 # 如果只有一个 persona，每轮都用同一个
 # 如果有多个，按顺序轮换，循环使用
@@ -87,8 +94,12 @@ iteration:
 
 ### 准备工作
 
-1. 读取 `.autodev/config.yaml` 获取配置
-2. **校验配置完整性**：确认以下必填字段存在且格式正确，否则报错并提示用户修复：
+1. **并发锁检查**：检查 `.autodev/.lock` 文件是否存在
+   - 如果存在，说明可能有另一个 autodev 实例正在运行，通过 ask_user 询问用户："检测到 .autodev/.lock 文件，可能有另一个迭代正在进行。是否强制执行（删除锁文件并继续）？"
+   - 如果不存在或用户确认强制执行，创建 `.autodev/.lock` 文件（写入当前时间戳）
+   - 迭代全部完成后或遇到致命错误时，删除 `.autodev/.lock` 文件
+2. 读取 `.autodev/config.yaml` 获取配置
+3. **校验配置完整性**：确认以下必填字段存在且格式正确，否则报错并提示用户修复：
    - `product.name`（字符串，非空）
    - `product.description`（字符串，非空）
    - `personas`（数组，至少 1 项，每项需有 `name`、`description`、`focus`）
@@ -173,13 +184,17 @@ iteration:
 
 ### Step 3：实施代码改进
 
+如果配置了 `hooks.before_step3`，先执行该命令；如果命令失败，通过 ask_user 询问用户是否继续。
+
 按照计划逐项实施，要求：
 
 1. 严格按优先级顺序
 2. 每改一个文件确保不引入新 bug
 3. 保持代码风格一致（参考 config 中的 code_conventions）
-4. **实施后立即验证**：如果项目有测试（检查 package.json scripts、Makefile 等），运行测试确保不破坏现有功能
-   - 如果测试失败，立即执行 `git checkout -- .` 回滚当前改进项的所有改动
+4. **实施后立即验证**：
+   - 如果配置了 `hooks.after_each_item`，优先执行该命令作为验证
+   - 否则自动检测项目测试（检查 package.json scripts、Makefile 等）并运行
+   - 如果验证失败，立即执行 `git checkout -- .` 回滚当前改进项的所有改动
    - 将该项标记为"实施失败"，记录失败原因，继续下一项
    - 如果连续 2 项实施失败，暂停并通过 ask_user 询问用户是否继续
 5. 如果某项改进风险太大，跳过并记录原因
@@ -187,6 +202,8 @@ iteration:
    - 好处：每项改动独立可追溯，失败回滚不影响已提交的成功项
    - 如果某项实施失败并回滚，不会产生 commit
    - 全部完成后，本轮的所有 commit 自然形成一组连续的改进记录
+
+全部改进项完成后，如果配置了 `hooks.after_step3`，执行该命令；如果失败，回滚最近一项改动并告知用户。
 
 ### Step 4（可选）：验证改进效果
 
@@ -201,7 +218,9 @@ iteration:
 
 ### 轮次结束
 
-完成一轮后，输出简要总结：
+完成一轮后，如果配置了 `hooks.after_round`，执行该命令（如端到端测试）；如果失败，暂停并通过 ask_user 询问用户如何处理。
+
+然后输出简要总结：
 ```
 ✅ 第 N 轮完成
    角色: {persona}
@@ -215,7 +234,8 @@ iteration:
 
 ### 全部轮次完成后
 
-所有轮次结束后，通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
+1. **删除并发锁**：删除 `.autodev/.lock` 文件
+2. 通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
 
 1. **保留并提交** — 将 docs_dir 下的反馈和计划文件保留在仓库中，作为迭代历史记录
 2. **保留但不提交** — 将 `{docs_dir}/` 加入 `.gitignore`，文件留在本地但不进入仓库

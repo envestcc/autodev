@@ -1,5 +1,6 @@
 # autodev runtime
 .autodev/logs/
+.autodev/.lock
 
 # OS
 .DS_Store
