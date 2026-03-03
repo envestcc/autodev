@@ -44,9 +44,11 @@ autodev/
 ├── skill/
 │   ├── SKILL.md                ← v1 核心 Skill 定义（单 Agent）
 │   └── SKILL-multi-agent.md    ← v2 核心 Skill 定义（多 Agent，推荐）
+├── personas/            ← Persona 模板库
 ├── README.md            ← 中文文档
 ├── README.en.md         ← English documentation
 ├── CONTRIBUTING.md      ← 贡献指南（本文件）
+├── CHANGELOG.md         ← 版本变更记录
 ├── .github/             ← Issue/PR 模板
 ├── examples/            ← 配置示例
 └── .autodev/            ← 自迭代配置

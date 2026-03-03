@@ -11,9 +11,11 @@
 通过 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI 驱动，autodev 自动执行「模拟用户试用 → 设计改进计划 → 实施代码改进」循环，实现产品无人值守的自动迭代升级。
 
 - 🤖 **全自动** — 一句话启动，AI 自动读代码、找问题、写修复、提交 commit
-- 🎭 **多角色** — 配置不同用户画像，每轮从不同视角发现问题
+- 🎭 **多角色** — 配置不同用户画像，每轮从不同视角发现问题（含[预置模板](personas/)）
 - 🔄 **持续迭代** — 支持 1~N 轮循环，每轮基于上一轮反馈递进改进
-- 🪶 **零依赖** — 整个工具就是一个 220 行的 Markdown 文件，一行 curl 安装
+- 🪶 **零依赖** — 整个工具就是一个 Markdown 文件，一行 curl 安装
+- 🔍 **dry-run** — 先分析不改代码，审阅后再决定是否实施
+- 🎯 **聚焦模式** — `focus_paths` / `exclude_paths` 精准控制分析范围
 
 ## 为什么选择 autodev
 
@@ -173,6 +175,50 @@ personas:
   - name: "高级用户"
     description: "追求效率和高级功能"
     focus: ["快捷操作", "自定义配置"]
+```
+
+> 💡 预置 Persona 模板见 [personas/](personas/) 目录，覆盖电商、SaaS、移动端、开发者工具等场景。
+
+## 高级功能
+
+### dry-run 模式
+
+只分析不改代码，审阅反馈和计划后再决定是否实施：
+
+```
+先分析不要改代码，迭代 3 轮
+```
+
+或在 config.yaml 中设置 `iteration.dry_run: true`。
+
+### 聚焦模式
+
+大型项目中限制 AI 只关注特定模块：
+
+```yaml
+focus_paths: ["src/auth/", "src/api/"]
+exclude_paths: ["src/vendor/", "dist/"]
+```
+
+### 生命周期 Hook
+
+在特定节点自动执行自定义命令：
+
+```yaml
+hooks:
+  before_step3: "npm run lint"
+  after_each_item: "npm test"
+  after_step3: "npm run build"
+  after_round: "npm run e2e"
+```
+
+### 验证 Agent（v2）
+
+开启后在代码实施后增加独立验证步骤，检查改进是否真正解决问题：
+
+```yaml
+iteration:
+  enable_verification: true
 ```
 
 ## 中途控制

@@ -257,7 +257,21 @@ iteration:
      第 2 轮 [{persona}] — {X} 项实施，发现 {Y} 个问题（其中 {Z} 个为上轮遗留）
      ...
    ```
-3. 通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
+3. **生成结构化报告（可选）**：同时将总结保存为 `{docs_dir}/iteration_summary.json`，便于 CI 流水线消费：
+   ```json
+   {
+     "total_rounds": 5,
+     "total_implemented": 20,
+     "total_skipped": 3,
+     "total_failed": 1,
+     "files_modified": 15,
+     "rounds": [
+       {"round": 1, "persona": "新手用户", "implemented": 5, "issues_found": 8},
+       ...
+     ]
+   }
+   ```
+4. 通过 ask_user 询问用户如何处理迭代过程中产生的中间文档（feedback 和 improvement_plan 文件）：
 
    1. **保留并提交** — 将 docs_dir 下的反馈和计划文件保留在仓库中，作为迭代历史记录
    2. **保留但不提交** — 将 `{docs_dir}/` 加入 `.gitignore`，文件留在本地但不进入仓库

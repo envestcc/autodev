@@ -11,9 +11,11 @@
 Driven by [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / Copilot CLI, autodev automates the cycle of "Simulate User Testing → Design Improvement Plan → Implement Code Improvements" for hands-free product iteration.
 
 - 🤖 **Fully Automated** — One command to start, AI reads code, finds issues, writes fixes, commits
-- 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective
+- 🎭 **Multi-Persona** — Configure different user personas, each round discovers issues from a different perspective ([templates included](personas/))
 - 🔄 **Continuous Iteration** — Supports 1~N rounds, each building on the previous round's feedback
-- 🪶 **Zero Dependency** — The entire tool is a single 220-line Markdown file, one curl to install
+- 🪶 **Zero Dependency** — The entire tool is a single Markdown file, one curl to install
+- 🔍 **Dry-run** — Analyze without modifying code, review before implementing
+- 🎯 **Focus Mode** — `focus_paths` / `exclude_paths` to control analysis scope
 
 ## Why autodev
 
@@ -173,6 +175,50 @@ personas:
   - name: "Power User"
     description: "Efficiency-focused, wants advanced features"
     focus: ["shortcuts", "customization"]
+```
+
+> 💡 Pre-built persona templates available in [personas/](personas/) — covering e-commerce, SaaS, mobile apps, and developer tools.
+
+## Advanced Features
+
+### Dry-run Mode
+
+Analyze without modifying code — review feedback and plans before committing to changes:
+
+```
+dry run, iterate 3 rounds
+```
+
+Or set `iteration.dry_run: true` in config.yaml.
+
+### Focus Mode
+
+Limit AI analysis to specific modules in large projects:
+
+```yaml
+focus_paths: ["src/auth/", "src/api/"]
+exclude_paths: ["src/vendor/", "dist/"]
+```
+
+### Lifecycle Hooks
+
+Run custom commands at specific points:
+
+```yaml
+hooks:
+  before_step3: "npm run lint"
+  after_each_item: "npm test"
+  after_step3: "npm run build"
+  after_round: "npm run e2e"
+```
+
+### Verification Agent (v2)
+
+Enable an independent verification step after code implementation:
+
+```yaml
+iteration:
+  enable_verification: true
 ```
 
 ## Mid-Iteration Controls
