@@ -20,6 +20,7 @@ description: |
 - "帮我迭代这个项目 N 轮"
 - "run autodev"、"iterate on this project"
 - "auto iterate this project"、"improve this project automatically"
+- "先分析不要改代码"、"dry run"、"只分析" → 触发 **dry-run 模式**（仅执行 Step 1 + Step 2，跳过 Step 3）
 
 ## 第一次使用：初始化
 
@@ -65,6 +66,8 @@ iteration:
   max_rounds: 5          # 运行时通过 "迭代 N 轮" 覆盖
   max_items_per_round: 6
   commit_prefix: "feat(autodev):"
+  # dry_run: false       # 设为 true 则仅分析不改代码（仅执行 Step 1 + 2）
+  # enable_verification: false  # 设为 true 则在 Step 3 后增加验证步骤（Step 4）
 
 # 角色轮换策略：不同轮次使用不同角色视角
 # 如果只有一个 persona，每轮都用同一个
@@ -75,7 +78,12 @@ iteration:
 
 ## 迭代执行流程
 
-当用户要求开始迭代时，执行以下循环。每一轮包含 3 个 Step。
+当用户要求开始迭代时，执行以下循环。每一轮包含 3 个 Step（dry-run 模式下仅 Step 1 + Step 2）。
+
+**dry-run 模式**：当用户触发词包含"先分析不要改代码"、"dry run"、"只分析"，或 config 中 `iteration.dry_run: true` 时：
+- 仅执行 Step 1（模拟用户试用）和 Step 2（设计改进计划）
+- 跳过 Step 3（实施代码改进），不修改任何代码
+- 输出反馈和计划文件，由用户审阅后决定是否手动实施或切换为正常模式
 
 ### 准备工作
 
@@ -179,6 +187,17 @@ iteration:
    - 好处：每项改动独立可追溯，失败回滚不影响已提交的成功项
    - 如果某项实施失败并回滚，不会产生 commit
    - 全部完成后，本轮的所有 commit 自然形成一组连续的改进记录
+
+### Step 4（可选）：验证改进效果
+
+仅当 `iteration.enable_verification: true` 时执行。
+
+1. 重新阅读本轮反馈报告中列出的每个问题
+2. 对照改进计划，逐项检查代码修改是否真正解决了问题
+3. 检查是否引入了新的回归问题
+4. 如果项目有测试，运行全部测试确认通过
+5. 输出验证结果：✅ 已解决 / ⚠️ 部分解决 / ❌ 未解决或回归
+6. 如果存在未解决项或回归，记录到 `{docs_dir}/verification_round_{N}.md`，供下一轮 Step 1 优先关注
 
 ### 轮次结束
 

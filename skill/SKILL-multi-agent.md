@@ -43,6 +43,7 @@ Orchestrator（你）
 - "帮我迭代这个项目 N 轮"
 - "run autodev"、"iterate on this project"
 - "auto iterate this project"、"improve this project automatically"
+- "先分析不要改代码"、"dry run"、"只分析" → 触发 **dry-run 模式**（仅执行 Step 1 + Step 2，跳过 Step 3）
 
 ## 第一次使用：初始化
 
@@ -88,6 +89,8 @@ iteration:
   max_rounds: 5
   max_items_per_round: 6
   commit_prefix: "feat(autodev):"
+  # dry_run: false       # 设为 true 则仅分析不改代码（仅执行 Step 1 + 2）
+  # enable_verification: false  # 设为 true 则在 Step 3 后增加验证步骤（Step 4）
 
 # Agent 模型配置（可选，取消注释以自定义）
 # 详见下方「Agent 模型选择指南」了解各模型优劣
@@ -95,6 +98,7 @@ iteration:
 #   user_simulator: "gemini-3-pro-preview"   # 用户模拟：推理深度和 nuance 出色
 #   planner: "claude-sonnet-4.6"             # 改进规划：分析+结构化最佳性价比
 #   implementer: "claude-sonnet-4.6"         # 代码实施：SWE-Bench 79.6%，工具调用稳定
+#   verifier: "claude-sonnet-4.6"            # 验证 Agent：需要 enable_verification: true
 ```
 
 然后告诉用户："配置完成！可以说 '开始迭代' 或 '迭代 3 轮' 来启动。"
@@ -102,6 +106,11 @@ iteration:
 ## 迭代执行流程
 
 当用户要求开始迭代时，执行以下循环。每一轮包含 3 个 Step，每个 Step 由独立的 sub-agent 执行。
+
+**dry-run 模式**：当用户触发词包含"先分析不要改代码"、"dry run"、"只分析"，或 config 中 `iteration.dry_run: true` 时：
+- 仅启动 Step 1（用户模拟 Agent）和 Step 2（改进规划 Agent）
+- 跳过 Step 3（代码实施 Agent）和 Step 4（验证 Agent），不修改任何代码
+- 输出反馈和计划文件，由用户审阅后决定是否手动实施或说"开始实施"切换为正常模式
 
 ### 准备工作（Orchestrator 自己做）
 
@@ -304,6 +313,51 @@ Orchestrator 输出简要总结：
 ```
 
 然后自动进入下一轮，直到达到目标轮数。
+
+> **可选 Step 4（验证 Agent）**：如果 config.yaml 中设置了 `iteration.enable_verification: true`，在 Step 3 之后、轮次结束之前，启动验证 Agent。
+
+### Step 4（可选）：启动「验证 Agent」
+
+仅当 `iteration.enable_verification: true` 时执行。使用 **task 工具** 启动 sub-agent：
+
+```
+task tool 调用参数：
+  agent_type: "general-purpose"
+  model: config.agents.verifier（默认不指定）
+  description: "Round N 改进验证"
+  prompt: 见下方模板
+```
+
+**传递给 Agent 的 prompt 模板**：
+
+```
+你是一个质量验证工程师。你需要独立验证本轮改进是否真正解决了反馈中的问题。
+
+## 输入
+- 本轮反馈报告：{docs_dir}/feedback_round_{N}.md
+- 本轮改进计划：{docs_dir}/improvement_plan_round_{N}.md
+- 源代码目录：{source_dirs}
+
+## 你的任务
+1. 阅读反馈报告中列出的每个问题
+2. 对照改进计划，检查代码中对应的修改是否真正解决了问题
+3. 检查是否引入了新的回归问题
+4. 如果项目有测试，运行全部测试确认通过
+
+## 输出要求
+直接输出验证报告（不保存到文件），格式：
+
+验证结果：
+- ✅ 改进项 1: {标题} — 验证通过，问题已解决
+- ⚠️ 改进项 2: {标题} — 部分解决，{具体说明}
+- ❌ 改进项 3: {标题} — 未解决 / 引入回归，{具体说明}
+
+回归检查：{无新问题 / 发现 N 个回归}
+```
+
+**Agent 完成后，Orchestrator 处理**：
+- 如果存在 `❌` 项或回归问题，将其记录到 `{docs_dir}/verification_round_{N}.md`，供下一轮 Step 1 优先关注
+- 验证结果纳入轮次总结输出
 
 ### 全部轮次完成后
 
